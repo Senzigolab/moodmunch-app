@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOODMUNCH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- TAMPILAN BARU (ESTETIK 60:40) --- */
+        :root {
+            --primary: #EE6F57; /* Warna Coral/Peach (Hangat & Manis) */
+            --secondary: #32E0C4; /* Aksen Tosca (Segar) */
+            --bg-color: #F7F7F5; /* Cream lembut (Bukan putih silau) */
+            --card-bg: #FFFFFF; /* Putih bersih */
+            --text-main: #2D3436; /* Abu tua (Bukan hitam pekat biar tidak kaku) */
+            --text-light: #636e72;
+            --wa-color: #25D366;
+        }
+
+       body {
+            /* 1. Atur Tata Letak (Jangan Dihapus) */
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text-main);
+
+            /* 2. BAGIAN BACKGROUND GAMBAR DI SINI */
+            
+            /* Opsi A: Pakai Link Gambar dari Internet (Unsplash) */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop');
+
+            /* Opsi B: Kalau mau pakai foto sendiri dari HP/Laptop */
+            /* background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('foto-kafe-kamu.jpg'); */
+
+            /* 3. Pengaturan agar gambar pas di layar */
+            background-size: cover;       /* Gambar menutupi seluruh layar */
+            background-position: center;  /* Gambar fokus di tengah */
+            background-attachment: fixed; /* Gambar diam saat di-scroll (Efek Parallax) */
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 25px; /* Sudut lebih bulat (Feminin touch) */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Bayangan lembut */
+            max-width: 480px;
+            width: 100%;
+            border: 1px solid #eee;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hiasan Header */
+        .header-decor {
+            background: linear-gradient(135deg, var(--primary), #ff9f43);
+            height: 8px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        h1 {
+            color: var(--text-main);
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            background: rgba(238, 111, 87, 0.1); /* Background tipis */
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            /* Trik agar subtitle ke tengah */
+            display: block; 
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            color: var(--text-main); 
+            font-size: 0.95rem;
+        }
+
+        /* Input Styles yang Lebih Bersih */
+        input[type="text"], select, input[type="number"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px; /* Lebih rounded */
+            border: 2px solid #f1f2f6;
+            background-color: #fcfcfc;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        /* Efek saat diklik jadi warna Coral */
+        input:focus, select:focus { 
+            border-color: var(--primary); 
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(238, 111, 87, 0.1);
+        }
+
+        /* Checkbox Area */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff0ed; /* Merah muda sangat muda */
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px dashed var(--primary);
+        }
+        
+        input[type="checkbox"] { 
+            width: 18px; 
+            height: 18px; 
+            accent-color: var(--primary); 
+            cursor: pointer;
+        }
+
+        .hidden { display: none; }
+
+        /* Tombol Pesan */
+        .btn-pesan {
+            width: 100%;
+            padding: 16px;
+            /* Gradient Green agar fresh tapi profesional */
+            background: linear-gradient(135deg, #25D366, #128C7E); 
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-pesan:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); 
+        }
+
+        /* Footer Credit */
+        .credit {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #b2bec3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-decor"></div>
+        <h1>MOODMUNCH</h1>
+        <p class="subtitle">✨ Treat Your Mood Today ✨</p>
+        
+        <div class="form-group">
+            <label><i class="fas fa-user-circle" style="color:var(--primary)"></i> Nama Kamu</label>
+            <input type="text" id="nama" placeholder="Ketik nama panggilanmu...">
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Lokasi Antar</label>
+            <input type="text" id="alamat" placeholder="Nama kosan / alamat rumah...">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-heart" style="color:var(--primary)"></i> Lagi ngerasa apa?</label>
+            <select id="mood" onchange="cekMood()">
+                <option value="0">-- Pilih Perasaanmu --</option>
+                <option value="1">😡 Marah / Stress (Butuh Pedas)</option>
+                <option value="2">😢 Sedih / Galau (Butuh Manis)</option>
+                <option value="3">😐 Gabut / Bosan (Butuh Kriuk)</option>
+                <option value="4">😋 Happy / Lapar (Butuh Kenyang)</option>
+            </select>
+        </div>
+
+        <div id="zona-pedas" class="hidden">
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="punya_maag" onchange="cekMaag()">
+                <label for="punya_maag" style="margin:0; color: #d63031; font-size: 0.9rem;">
+                    Ada riwayat Maag?
+                </label>
+            </div>
+            
+            <div id="konfirmasi-maag" class="hidden form-group checkbox-group" style="background: #e3f2fd; border-color: #2196f3;">
+                <input type="checkbox" id="yakin_lanjut" style="accent-color: #2196f3;">
+                <label for="yakin_lanjut" style="margin:0; font-size: 0.9rem; color: #2d3436;">
+                    Aku mengerti & lanjut pesan.
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>Level Pedas (1-5)</label>
+                <input type="number" id="level_pedas" min="1" max="5" value="1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-utensils" style="color:var(--primary)"></i> Rekomendasi Menu</label>
+            <select id="makan">
+                <option value="0">-- Pilih Mood Dulu ya --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-glass-water" style="color:var(--primary)"></i> Minumnya?</label>
+            <select id="minum">
+                <option value="0">-- Pilih Minuman --</option>
+                <option value="3000">Es Teh Kecil (Rp 3.000)</option>
+                <option value="5000">Es Teh JUMBO (Rp 5.000)</option>
+                <option value="5000">Es Jeruk Peras (Rp 5.000)</option>
+                <option value="3000">Air Mineral (Rp 3.000)</option>
+                <option value="0">Gak Minum (Rp 0)</option>
+            </select>
+        </div>
+
+        <button class="btn-pesan" onclick="kirimKeWA()">
+            <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Kirim Pesanan
+        </button>
+
+        <div class="credit">Created with brain by Senz</div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI PENJUAL (SAMA SEPERTI SEBELUMNYA) ---
+        const NOMOR_WA_PENJUAL = "6287846644813"; 
+
+        const menuData = {
+            1: [ { nama: "Basreng Stik", harga: 8000 }, { nama: "Makaroni Bantet", harga: 5000 } ],
+            2: [ { nama: "Piscok Lumer (Isi 3)", harga: 5000 }, { nama: "Bola Cokelat (Isi 4)", harga: 5000 }, { nama: "Piscok Satuan", harga: 2000 } ],
+            3: [ { nama: "KULPI Balado", harga: 5000 }, { nama: "Keripik Pangsit", harga: 6000 } ],
+            4: [ { nama: "Cireng Rujak (Isi 5)", harga: 5000 }, { nama: "Tahu Walik (Isi 4)", harga: 6000 } ]
+        };
+
+        const quotesData = {
+            1: "Pedas nendang, dompet aman! 🔥",
+            2: "Manis-manis pengobat hati. 🍫",
+            3: "Kriuknya bikin lupa waktu. 🍿",
+            4: "Perut kenyang hatipun senang. 🥰"
+        };
+
+        function cekMood() {
+            let moodVal = document.getElementById("mood").value;
+            let selectMakan = document.getElementById("makan");
+            let zonaPedas = document.getElementById("zona-pedas");
+            
+            selectMakan.innerHTML = '<option value="0">-- Pilih Menu --</option>';
+
+            if (moodVal == 1) { zonaPedas.classList.remove("hidden"); } 
+            else { zonaPedas.classList.add("hidden"); }
+
+            if (menuData[moodVal]) {
+                menuData[moodVal].forEach((item) => {
+                    let option = document.createElement("option");
+                    option.value = item.harga; 
+                    option.text = item.nama + " - Rp " + item.harga;
+                    option.setAttribute("data-nama", item.nama);
+                    selectMakan.add(option);
+                });
+            }
+        }
+
+        function cekMaag() {
+            let punyaMaag = document.getElementById("punya_maag").checked;
+            let divKonfirmasi = document.getElementById("konfirmasi-maag");
+            if (punyaMaag) divKonfirmasi.classList.remove("hidden");
+            else {
+                divKonfirmasi.classList.add("hidden");
+                document.getElementById("yakin_lanjut").checked = false;
+            }
+        }
+
+        function kirimKeWA() {
+            let nama = document.getElementById("nama").value;
+            let alamat = document.getElementById("alamat").value;
+            let mood = parseInt(document.getElementById("mood").value);
+            
+            if (!nama || !alamat) { alert("Halo kak, nama dan alamat diisi dulu ya! 😊"); return; }
+            if (mood === 0) { alert("Pilih Mood dulu ya kak!"); return; }
+
+            if (mood === 1) {
+                let isMaag = document.getElementById("punya_maag").checked;
+                let isYakin = document.getElementById("yakin_lanjut").checked;
+                if (isMaag && !isYakin) {
+                    alert("Maaf kak, demi kesehatan lambung kakak, ganti menu lain aja ya 🙏");
+                    return;
+                }
+            }
+
+            let selectMakan = document.getElementById("makan");
+            let hargaMakan = parseInt(selectMakan.value);
+            let namaMakan = selectMakan.options[selectMakan.selectedIndex].getAttribute("data-nama");
+
+            if (isNaN(hargaMakan)) { alert("Pilih Makanannya dulu kak!"); return; }
+
+            let selectMinum = document.getElementById("minum");
+            let hargaMinum = parseInt(selectMinum.value);
+            let namaMinum = selectMinum.options[selectMinum.selectedIndex].text;
+
+            let infoPedas = "";
+            if (mood === 1) {
+                let level = document.getElementById("level_pedas").value;
+                infoPedas = " (Level " + level + ")";
+            }
+
+            let total = hargaMakan + hargaMinum;
+            let quote = quotesData[mood];
+
+            let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!%0a%0a` +
+                          `🙋‍♀️ Nama: *${nama}*%0a` +
+                          `🏠 Alamat: ${alamat}%0a` +
+                          `--------------------------------%0a` +
+                          `🍽️ Menu: ${namaMakan}${infoPedas}%0a` +
+                          `🥤 Minum: ${namaMinum}%0a` +
+                          `💰 *Total: Rp ${total}*%0a` +
+                          `--------------------------------%0a` +
+                          `✨ _"${quote}"_%0a%0a` +
+                          `Ditunggu ya kak!`;
+
+            let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${pesanWA}`;
+            window.open(link, '_blank');
+        }
+    </script>
+</body>
+</html>
