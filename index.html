@@ -8,19 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- TAMPILAN BARU (ESTETIK 60:40) --- */
+        /* --- STYLE DASAR (SAMA SEPERTI SEBELUMNYA) --- */
         :root {
-            --primary: #EE6F57; /* Warna Coral/Peach (Hangat & Manis) */
-            --secondary: #32E0C4; /* Aksen Tosca (Segar) */
-            --bg-color: #F7F7F5; /* Cream lembut (Bukan putih silau) */
-            --card-bg: #FFFFFF; /* Putih bersih */
-            --text-main: #2D3436; /* Abu tua (Bukan hitam pekat biar tidak kaku) */
+            --primary: #EE6F57; 
+            --secondary: #32E0C4; 
+            --bg-color: #F7F7F5; 
+            --card-bg: #FFFFFF; 
+            --text-main: #2D3436; 
             --text-light: #636e72;
             --wa-color: #25D366;
         }
 
-       body {
-            /* 1. Atur Tata Letak (Jangan Dihapus) */
+        body {
             font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
@@ -29,26 +28,17 @@
             margin: 0;
             min-height: 100vh;
             color: var(--text-main);
-
-            /* 2. BAGIAN BACKGROUND GAMBAR DI SINI */
-            
-            /* Opsi A: Pakai Link Gambar dari Internet (Unsplash) */
             background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop');
-
-            /* Opsi B: Kalau mau pakai foto sendiri dari HP/Laptop */
-            /* background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('foto-kafe-kamu.jpg'); */
-
-            /* 3. Pengaturan agar gambar pas di layar */
-            background-size: cover;       /* Gambar menutupi seluruh layar */
-            background-position: center;  /* Gambar fokus di tengah */
-            background-attachment: fixed; /* Gambar diam saat di-scroll (Efek Parallax) */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
         .container {
             background-color: var(--card-bg);
             padding: 30px;
-            border-radius: 25px; /* Sudut lebih bulat (Feminin touch) */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Bayangan lembut */
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             max-width: 480px;
             width: 100%;
             border: 1px solid #eee;
@@ -56,7 +46,6 @@
             overflow: hidden;
         }
 
-        /* Hiasan Header */
         .header-decor {
             background: linear-gradient(135deg, var(--primary), #ff9f43);
             height: 8px;
@@ -73,7 +62,6 @@
             margin-bottom: 5px;
             font-size: 1.8rem;
             font-weight: 600;
-            letter-spacing: -0.5px;
         }
         
         .subtitle {
@@ -82,15 +70,13 @@
             font-size: 0.9rem;
             font-weight: 500;
             margin-bottom: 30px;
-            background: rgba(238, 111, 87, 0.1); /* Background tipis */
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            /* Trik agar subtitle ke tengah */
+            background: rgba(238, 111, 87, 0.1);
             display: block; 
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
         .form-group { margin-bottom: 20px; }
@@ -103,11 +89,10 @@
             font-size: 0.95rem;
         }
 
-        /* Input Styles yang Lebih Bersih */
         input[type="text"], select, input[type="number"] {
             width: 100%;
             padding: 14px;
-            border-radius: 12px; /* Lebih rounded */
+            border-radius: 12px;
             border: 2px solid #f1f2f6;
             background-color: #fcfcfc;
             color: var(--text-main);
@@ -115,9 +100,9 @@
             font-family: 'Poppins', sans-serif;
             outline: none;
             transition: 0.3s;
+            box-sizing: border-box; /* Agar padding tidak merusak lebar */
         }
         
-        /* Efek saat diklik jadi warna Coral */
         input:focus, select:focus { 
             border-color: var(--primary); 
             background-color: #fff;
@@ -129,7 +114,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #fff0ed; /* Merah muda sangat muda */
+            background: #fff0ed;
             padding: 12px;
             border-radius: 12px;
             border: 1px dashed var(--primary);
@@ -142,13 +127,51 @@
             cursor: pointer;
         }
 
+        /* --- TAMBAHAN STYLE UNTUK PENGIRIMAN --- */
+        .delivery-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .delivery-option {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #f1f2f6;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .delivery-option.active {
+            border-color: var(--primary);
+            background-color: rgba(238, 111, 87, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        #info-jarak {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: #f1f2f6;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+            display: none; /* Sembunyi default */
+        }
+
+        .loading-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         .hidden { display: none; }
 
-        /* Tombol Pesan */
         .btn-pesan {
             width: 100%;
             padding: 16px;
-            /* Gradient Green agar fresh tapi profesional */
             background: linear-gradient(135deg, #25D366, #128C7E); 
             color: white;
             border: none;
@@ -170,7 +193,6 @@
             box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); 
         }
 
-        /* Footer Credit */
         .credit {
             text-align: center;
             margin-top: 30px;
@@ -192,7 +214,23 @@
         </div>
         
         <div class="form-group">
-            <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Lokasi Antar</label>
+            <label><i class="fas fa-motorcycle" style="color:var(--primary)"></i> Metode Pesanan</label>
+            <div class="delivery-options">
+                <div class="delivery-option active" id="opt-pickup" onclick="pilihMetode('pickup')">
+                    Ambil Sendiri
+                </div>
+                <div class="delivery-option" id="opt-delivery" onclick="pilihMetode('delivery')">
+                    Delivery
+                </div>
+            </div>
+            
+            <div id="info-jarak">
+                <i class="fas fa-map-pin"></i> Mendeteksi lokasimu...
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Lokasi Antar / Catatan</label>
             <input type="text" id="alamat" placeholder="Nama kosan / alamat rumah...">
         </div>
 
@@ -255,8 +293,18 @@
     </div>
 
     <script>
-        // --- KONFIGURASI PENJUAL (SAMA SEPERTI SEBELUMNYA) ---
+        // --- KONFIGURASI DAN DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
+        
+        // Lokasi Penjual (Jl. Flamboyan, Condong Catur)
+        const SELLER_LAT = -7.759353; 
+        const SELLER_LON = 110.395758;
+
+        // Variabel Global untuk menyimpan data lokasi user
+        let userLat = 0;
+        let userLon = 0;
+        let userDistanceKM = 0;
+        let metodePengiriman = 'pickup'; // Default 'pickup'
 
         const menuData = {
             1: [ { nama: "Basreng Stik", harga: 8000 }, { nama: "Makaroni Bantet", harga: 5000 } ],
@@ -272,87 +320,51 @@
             4: "Perut kenyang hatipun senang. 🥰"
         };
 
-        function cekMood() {
-            let moodVal = document.getElementById("mood").value;
-            let selectMakan = document.getElementById("makan");
-            let zonaPedas = document.getElementById("zona-pedas");
-            
-            selectMakan.innerHTML = '<option value="0">-- Pilih Menu --</option>';
+        // --- 1. FITUR LOCAL STORAGE (MENGINGAT NAMA) ---
+        window.onload = function() {
+            // Cek apakah ada nama tersimpan
+            let savedName = localStorage.getItem("moodmunch_user_name");
+            if (savedName) {
+                document.getElementById("nama").value = savedName;
+                console.log("Nama ditemukan: " + savedName);
+            }
+        };
 
-            if (moodVal == 1) { zonaPedas.classList.remove("hidden"); } 
-            else { zonaPedas.classList.add("hidden"); }
+        // Simpan nama setiap kali user mengetik
+        document.getElementById("nama").addEventListener("input", function() {
+            localStorage.setItem("moodmunch_user_name", this.value);
+        });
 
-            if (menuData[moodVal]) {
-                menuData[moodVal].forEach((item) => {
-                    let option = document.createElement("option");
-                    option.value = item.harga; 
-                    option.text = item.nama + " - Rp " + item.harga;
-                    option.setAttribute("data-nama", item.nama);
-                    selectMakan.add(option);
-                });
+
+        // --- 2. FITUR GEOLOCATION & HITUNG JARAK ---
+        
+        function pilihMetode(metode) {
+            metodePengiriman = metode;
+            const btnPickup = document.getElementById("opt-pickup");
+            const btnDelivery = document.getElementById("opt-delivery");
+            const infoJarak = document.getElementById("info-jarak");
+            const inputAlamat = document.getElementById("alamat");
+
+            if (metode === 'pickup') {
+                btnPickup.classList.add('active');
+                btnDelivery.classList.remove('active');
+                infoJarak.style.display = 'none';
+                inputAlamat.placeholder = "Catatan pesanan (opsional)...";
+            } else {
+                btnPickup.classList.remove('active');
+                btnDelivery.classList.add('active');
+                infoJarak.style.display = 'block';
+                inputAlamat.placeholder = "Patokan lokasi pengantaran...";
+                
+                // Mulai ambil lokasi
+                ambilLokasiUser();
             }
         }
 
-        function cekMaag() {
-            let punyaMaag = document.getElementById("punya_maag").checked;
-            let divKonfirmasi = document.getElementById("konfirmasi-maag");
-            if (punyaMaag) divKonfirmasi.classList.remove("hidden");
-            else {
-                divKonfirmasi.classList.add("hidden");
-                document.getElementById("yakin_lanjut").checked = false;
-            }
-        }
+        function ambilLokasiUser() {
+            const infoJarak = document.getElementById("info-jarak");
+            infoJarak.innerHTML = '<i class="fas fa-spinner loading-spin"></i> Mencari koordinatmu...';
 
-        function kirimKeWA() {
-            let nama = document.getElementById("nama").value;
-            let alamat = document.getElementById("alamat").value;
-            let mood = parseInt(document.getElementById("mood").value);
-            
-            if (!nama || !alamat) { alert("Halo kak, nama dan alamat diisi dulu ya! 😊"); return; }
-            if (mood === 0) { alert("Pilih Mood dulu ya kak!"); return; }
-
-            if (mood === 1) {
-                let isMaag = document.getElementById("punya_maag").checked;
-                let isYakin = document.getElementById("yakin_lanjut").checked;
-                if (isMaag && !isYakin) {
-                    alert("Maaf kak, demi kesehatan lambung kakak, ganti menu lain aja ya 🙏");
-                    return;
-                }
-            }
-
-            let selectMakan = document.getElementById("makan");
-            let hargaMakan = parseInt(selectMakan.value);
-            let namaMakan = selectMakan.options[selectMakan.selectedIndex].getAttribute("data-nama");
-
-            if (isNaN(hargaMakan)) { alert("Pilih Makanannya dulu kak!"); return; }
-
-            let selectMinum = document.getElementById("minum");
-            let hargaMinum = parseInt(selectMinum.value);
-            let namaMinum = selectMinum.options[selectMinum.selectedIndex].text;
-
-            let infoPedas = "";
-            if (mood === 1) {
-                let level = document.getElementById("level_pedas").value;
-                infoPedas = " (Level " + level + ")";
-            }
-
-            let total = hargaMakan + hargaMinum;
-            let quote = quotesData[mood];
-
-            let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!%0a%0a` +
-                          `🙋‍♀️ Nama: *${nama}*%0a` +
-                          `🏠 Alamat: ${alamat}%0a` +
-                          `--------------------------------%0a` +
-                          `🍽️ Menu: ${namaMakan}${infoPedas}%0a` +
-                          `🥤 Minum: ${namaMinum}%0a` +
-                          `💰 *Total: Rp ${total}*%0a` +
-                          `--------------------------------%0a` +
-                          `✨ _"${quote}"_%0a%0a` +
-                          `Ditunggu ya kak!`;
-
-            let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${pesanWA}`;
-            window.open(link, '_blank');
-        }
-    </script>
-</body>
-</html>
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else
