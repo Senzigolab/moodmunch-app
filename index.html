@@ -367,4 +367,151 @@
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else
+            } else{
+                infoJarak.innerHTML = "Browser tidak support lokasi.";
+            }
+        }
+
+        function showPosition(position) {
+            userLat = position.coords.latitude;
+            userLon = position.coords.longitude;
+            
+            // Hitung Jarak dengan rumus Haversine
+            let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
+            userDistanceKM = jarak.toFixed(2); // Ambil 2 desimal
+
+            const infoJarak = document.getElementById("info-jarak");
+            infoJarak.innerHTML = `📍 Jarak ke Outlet: <b>${userDistanceKM} km</b>`;
+        }
+
+        function showError(error) {
+            const infoJarak = document.getElementById("info-jarak");
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    infoJarak.innerHTML = "❌ Izin lokasi ditolak. Ketik alamat manual ya.";
+                    break;
+                default:
+                    infoJarak.innerHTML = "❌ Gagal mendeteksi lokasi.";
+            }
+        }
+
+        // Rumus Haversine (Menghitung jarak garis lurus di bumi)
+        function hitungJarak(lat1, lon1, lat2, lon2) {
+            var R = 6371; // Radius bumi dalam KM
+            var dLat = deg2rad(lat2 - lat1);
+            var dLon = deg2rad(lon2 - lon1);
+            var a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            var d = R * c; // Jarak dalam KM
+            return d;
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI/180);
+        }
+
+        // --- FUNGSI LAMA (LOGIKA MOOD & PESAN) ---
+
+        function cekMood() {
+            let moodVal = document.getElementById("mood").value;
+            let selectMakan = document.getElementById("makan");
+            let zonaPedas = document.getElementById("zona-pedas");
+            
+            selectMakan.innerHTML = '<option value="0">-- Pilih Menu --</option>';
+
+            if (moodVal == 1) { zonaPedas.classList.remove("hidden"); } 
+            else { zonaPedas.classList.add("hidden"); }
+
+            if (menuData[moodVal]) {
+                menuData[moodVal].forEach((item) => {
+                    let option = document.createElement("option");
+                    option.value = item.harga; 
+                    option.text = item.nama + " - Rp " + item.harga;
+                    option.setAttribute("data-nama", item.nama);
+                    selectMakan.add(option);
+                });
+            }
+        }
+
+        function cekMaag() {
+            let punyaMaag = document.getElementById("punya_maag").checked;
+            let divKonfirmasi = document.getElementById("konfirmasi-maag");
+            if (punyaMaag) divKonfirmasi.classList.remove("hidden");
+            else {
+                divKonfirmasi.classList.add("hidden");
+                document.getElementById("yakin_lanjut").checked = false;
+            }
+        }
+
+        function kirimKeWA() {
+            let nama = document.getElementById("nama").value;
+            let alamat = document.getElementById("alamat").value;
+            let mood = parseInt(document.getElementById("mood").value);
+            
+            if (!nama) { alert("Halo kak, isi namanya dulu ya! 😊"); return; }
+            if (metodePengiriman === 'delivery' && !alamat) { alert("Alamat pengantarannya diisi dulu kak!"); return; }
+            if (mood === 0) { alert("Pilih Mood dulu ya kak!"); return; }
+
+            if (mood === 1) {
+                let isMaag = document.getElementById("punya_maag").checked;
+                let isYakin = document.getElementById("yakin_lanjut").checked;
+                if (isMaag && !isYakin) {
+                    alert("Maaf kak, demi kesehatan lambung kakak, ganti menu lain aja ya 🙏");
+                    return;
+                }
+            }
+
+            let selectMakan = document.getElementById("makan");
+            let hargaMakan = parseInt(selectMakan.value);
+            let namaMakan = selectMakan.options[selectMakan.selectedIndex].getAttribute("data-nama");
+
+            if (isNaN(hargaMakan)) { alert("Pilih Makanannya dulu kak!"); return; }
+
+            let selectMinum = document.getElementById("minum");
+            let hargaMinum = parseInt(selectMinum.value);
+            let namaMinum = selectMinum.options[selectMinum.selectedIndex].text;
+
+            let infoPedas = "";
+            if (mood === 1) {
+                let level = document.getElementById("level_pedas").value;
+                infoPedas = " (Level " + level + ")";
+            }
+
+            let total = hargaMakan + hargaMinum;
+            let quote = quotesData[mood];
+
+            // Siapkan teks metode pengiriman
+            let teksMetode = "";
+            if (metodePengiriman === 'pickup') {
+                teksMetode = "🚶 Ambil Sendiri";
+            } else {
+                teksMetode = `🛵 Delivery (Jarak: ${userDistanceKM} km)`;
+            }
+
+            // Link Google Maps Lokasi User (jika ada koordinat)
+            let linkMaps = "";
+            if (userLat !== 0 && metodePengiriman === 'delivery') {
+                linkMaps = `📍 Maps: https://www.google.com/maps?q=${userLat},${userLon}%0a`;
+            }
+
+            let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!%0a%0a` +
+                          `🙋‍♀️ Nama: *${nama}*%0a` +
+                          `⚙️ Metode: ${teksMetode}%0a` +
+                          `🏠 Alamat/Catatan: ${alamat}%0a` +
+                          `${linkMaps}` +
+                          `--------------------------------%0a` +
+                          `🍽️ Menu: ${namaMakan}${infoPedas}%0a` +
+                          `🥤 Minum: ${namaMinum}%0a` +
+                          `💰 *Total: Rp ${total}*%0a` +
+                          `--------------------------------%0a` +
+                          `✨ _"${quote}"_%0a%0a` +
+                          `Ditunggu ya kak!`;
+
+            let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${pesanWA}`;
+            window.open(link, '_blank');
+        }
+    </script>
+</body>
+</html>
