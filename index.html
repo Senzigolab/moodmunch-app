@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- STYLE DASAR (SAMA SEPERTI SEBELUMNYA) --- */
+        /* --- STYLE DASAR --- */
         :root {
             --primary: #EE6F57; 
             --secondary: #32E0C4; 
@@ -100,7 +100,7 @@
             font-family: 'Poppins', sans-serif;
             outline: none;
             transition: 0.3s;
-            box-sizing: border-box; /* Agar padding tidak merusak lebar */
+            box-sizing: border-box; 
         }
         
         input:focus, select:focus { 
@@ -127,7 +127,7 @@
             cursor: pointer;
         }
 
-        /* --- TAMBAHAN STYLE UNTUK PENGIRIMAN --- */
+        /* --- STYLE PENGIRIMAN & ONGKIR --- */
         .delivery-options {
             display: flex;
             gap: 10px;
@@ -153,13 +153,26 @@
         }
 
         #info-jarak {
-            font-size: 0.85rem;
-            color: var(--text-light);
+            font-size: 0.9rem;
+            color: var(--text-main);
             background: #f1f2f6;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 5px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
             display: none; /* Sembunyi default */
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Tampilan harga ongkir */
+        .ongkir-badge {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            font-weight: 600;
         }
 
         .loading-spin {
@@ -231,7 +244,7 @@
 
         <div class="form-group">
             <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Lokasi Antar / Catatan</label>
-            <input type="text" id="alamat" placeholder="Nama kosan / alamat rumah...">
+            <input type="text" id="alamat" placeholder="Catatan (Misal: Jangan pakai saos)...">
         </div>
 
         <div class="form-group">
@@ -300,11 +313,12 @@
         const SELLER_LAT = -7.759353; 
         const SELLER_LON = 110.395758;
 
-        // Variabel Global untuk menyimpan data lokasi user
+        // Variabel Global
         let userLat = 0;
         let userLon = 0;
         let userDistanceKM = 0;
-        let metodePengiriman = 'pickup'; // Default 'pickup'
+        let metodePengiriman = 'pickup'; 
+        let hargaOngkir = 0; // Menyimpan harga ongkir aktif
 
         const menuData = {
             1: [ { nama: "Basreng Stik", harga: 8000 }, { nama: "Makaroni Bantet", harga: 5000 } ],
@@ -322,21 +336,18 @@
 
         // --- 1. FITUR LOCAL STORAGE (MENGINGAT NAMA) ---
         window.onload = function() {
-            // Cek apakah ada nama tersimpan
             let savedName = localStorage.getItem("moodmunch_user_name");
             if (savedName) {
                 document.getElementById("nama").value = savedName;
-                console.log("Nama ditemukan: " + savedName);
             }
         };
 
-        // Simpan nama setiap kali user mengetik
         document.getElementById("nama").addEventListener("input", function() {
             localStorage.setItem("moodmunch_user_name", this.value);
         });
 
 
-        // --- 2. FITUR GEOLOCATION & HITUNG JARAK ---
+        // --- 2. FITUR GEOLOCATION & HITUNG ONGKIR ---
         
         function pilihMetode(metode) {
             metodePengiriman = metode;
@@ -350,13 +361,12 @@
                 btnDelivery.classList.remove('active');
                 infoJarak.style.display = 'none';
                 inputAlamat.placeholder = "Catatan pesanan (opsional)...";
+                hargaOngkir = 0; // Reset ongkir jika pickup
             } else {
                 btnPickup.classList.remove('active');
                 btnDelivery.classList.add('active');
                 infoJarak.style.display = 'block';
                 inputAlamat.placeholder = "Patokan lokasi pengantaran...";
-                
-                // Mulai ambil lokasi
                 ambilLokasiUser();
             }
         }
@@ -367,7 +377,7 @@
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else{
+            } else {
                 infoJarak.innerHTML = "Browser tidak support lokasi.";
             }
         }
@@ -376,41 +386,54 @@
             userLat = position.coords.latitude;
             userLon = position.coords.longitude;
             
-            // Hitung Jarak dengan rumus Haversine
+            // Hitung Jarak
             let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
-            userDistanceKM = jarak.toFixed(2); // Ambil 2 desimal
+            userDistanceKM = jarak.toFixed(2); 
+
+            // --- LOGIKA ONGKIR BARU ---
+            let ketOngkir = "";
+            
+            if (userDistanceKM <= 4) {
+                hargaOngkir = 5000;
+                ketOngkir = "Zona Kampus";
+            } else if (userDistanceKM <= 9) {
+                hargaOngkir = 10000;
+                ketOngkir = "Zona Nongkrong";
+            } else if (userDistanceKM <= 15) {
+                hargaOngkir = 15000;
+                ketOngkir = "Luar Kota/Jauh";
+            } else {
+                hargaOngkir = 20000;
+                ketOngkir = "Extra Jauh";
+            }
 
             const infoJarak = document.getElementById("info-jarak");
-            infoJarak.innerHTML = `📍 Jarak ke Outlet: <b>${userDistanceKM} km</b>`;
+            infoJarak.innerHTML = `
+                <div>📍 Jarak: <b>${userDistanceKM} km</b> (${ketOngkir})</div>
+                <div style="margin-top:5px; font-size:1.1rem; color:var(--primary); font-weight:bold;">
+                    🛵 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}
+                </div>
+            `;
         }
 
         function showError(error) {
             const infoJarak = document.getElementById("info-jarak");
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    infoJarak.innerHTML = "❌ Izin lokasi ditolak. Ketik alamat manual ya.";
-                    break;
-                default:
-                    infoJarak.innerHTML = "❌ Gagal mendeteksi lokasi.";
-            }
+            infoJarak.innerHTML = "❌ Gagal deteksi lokasi. Izinkan GPS ya!";
+            hargaOngkir = 0; // Default jika gagal
         }
 
-        // Rumus Haversine (Menghitung jarak garis lurus di bumi)
         function hitungJarak(lat1, lon1, lat2, lon2) {
-            var R = 6371; // Radius bumi dalam KM
+            var R = 6371; 
             var dLat = deg2rad(lat2 - lat1);
             var dLon = deg2rad(lon2 - lon1);
             var a = 
                 Math.sin(dLat/2) * Math.sin(dLat/2) +
                 Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            var d = R * c; // Jarak dalam KM
-            return d;
+            return R * c; 
         }
 
-        function deg2rad(deg) {
-            return deg * (Math.PI/180);
-        }
+        function deg2rad(deg) { return deg * (Math.PI/180); }
 
         // --- FUNGSI LAMA (LOGIKA MOOD & PESAN) ---
 
@@ -451,7 +474,7 @@
             let mood = parseInt(document.getElementById("mood").value);
             
             if (!nama) { alert("Halo kak, isi namanya dulu ya! 😊"); return; }
-            if (metodePengiriman === 'delivery' && !alamat) { alert("Alamat pengantarannya diisi dulu kak!"); return; }
+            if (metodePengiriman === 'delivery' && !alamat) { alert("Alamat/Patokan pengantarannya diisi dulu kak!"); return; }
             if (mood === 0) { alert("Pilih Mood dulu ya kak!"); return; }
 
             if (mood === 1) {
@@ -479,32 +502,38 @@
                 infoPedas = " (Level " + level + ")";
             }
 
-            let total = hargaMakan + hargaMinum;
+            // HITUNG TOTAL AKHIR (Makanan + Minum + Ongkir)
+            let total = hargaMakan + hargaMinum + hargaOngkir;
             let quote = quotesData[mood];
 
-            // Siapkan teks metode pengiriman
             let teksMetode = "";
+            let rincianOngkir = "";
+
             if (metodePengiriman === 'pickup') {
                 teksMetode = "🚶 Ambil Sendiri";
+                rincianOngkir = ""; // Tidak perlu rincian ongkir kalau pickup
             } else {
-                teksMetode = `🛵 Delivery (Jarak: ${userDistanceKM} km)`;
+                // Tampilkan rincian ongkir di WA
+                teksMetode = `🛵 Delivery (${userDistanceKM} km)`;
+                rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}%0a`;
             }
 
-            // Link Google Maps Lokasi User (jika ada koordinat)
             let linkMaps = "";
             if (userLat !== 0 && metodePengiriman === 'delivery') {
-                linkMaps = `📍 Maps: https://www.google.com/maps?q=${userLat},${userLon}%0a`;
+                // Link Google Maps agar driver mudah mencari
+                linkMaps = `📍 Maps: https://www.google.com/maps/search/?api=1&query=${userLat},${userLon}%0a`;
             }
 
             let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!%0a%0a` +
                           `🙋‍♀️ Nama: *${nama}*%0a` +
                           `⚙️ Metode: ${teksMetode}%0a` +
-                          `🏠 Alamat/Catatan: ${alamat}%0a` +
+                          `🏠 Alamat/Patokan: ${alamat}%0a` +
                           `${linkMaps}` +
                           `--------------------------------%0a` +
                           `🍽️ Menu: ${namaMakan}${infoPedas}%0a` +
                           `🥤 Minum: ${namaMinum}%0a` +
-                          `💰 *Total: Rp ${total}*%0a` +
+                          `${rincianOngkir}` + // Baris ongkir ditambahkan
+                          `💰 *Total Bayar: Rp ${total.toLocaleString('id-ID')}*%0a` +
                           `--------------------------------%0a` +
                           `✨ _"${quote}"_%0a%0a` +
                           `Ditunggu ya kak!`;
