@@ -16,7 +16,6 @@
             --card-bg: #FFFFFF; 
             --text-main: #2D3436; 
             --text-light: #636e72;
-            --wa-color: #25D366;
         }
 
         body {
@@ -117,7 +116,7 @@
             margin-bottom: 20px;
             text-align: center;
             border: 1px dashed #ced6e0;
-            display: none; /* Sembunyi jika bukan delivery */
+            display: none; 
             animation: fadeIn 0.5s;
         }
 
@@ -163,15 +162,16 @@
 
         /* --- VISUAL LOKASI SELLER (MAP) --- */
         #seller-map-panel {
-            margin-top: 10px;
+            margin-top: 15px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: none; /* Default hidden */
+            display: none; 
             animation: fadeIn 0.5s;
+            border: 2px solid #fff;
         }
         
-        iframe { width: 100%; border: 0; height: 180px; }
+        iframe { width: 100%; border: 0; height: 200px; display: block; }
 
         /* --- STYLE LAIN --- */
         .checkbox-group {
@@ -258,8 +258,11 @@
                 <div class="radar-pulse"></div>
                 <div class="radar-dot"></div>
             </div>
-            <div class="location-text">Mendeteksi Lokasimu...</div>
+            <div class="location-text">Mendeteksi Posisi Kamu...</div>
             <div id="lokasi-result-text" class="location-result">-</div>
+            <button onclick="ambilLokasiUser()" style="margin-top:10px; padding:5px 10px; border:1px solid #ddd; background:white; border-radius:5px; cursor:pointer; font-size:0.8rem;">
+                <i class="fas fa-sync-alt"></i> Refresh GPS
+            </button>
         </div>
         
         <div class="form-group">
@@ -276,9 +279,11 @@
             </div>
 
             <div id="seller-map-panel">
-                <label style="margin-left:5px; font-size:0.85rem; color:var(--text-light);">📍 Lokasi Outlet Kami:</label>
+                <div style="padding:10px; background:#f1f2f6; color:var(--text-main); font-size:0.9rem; font-weight:600; text-align:center;">
+                    📍 Lokasi: Jenengan, Maguwoharjo
+                </div>
                 <iframe 
-                    src="https://maps.google.com/maps?q=-7.7612653,110.4187610&t=&z=17&ie=UTF8&iwloc=&output=embed" 
+                    src="https://maps.google.com/maps?q=-7.7612653,110.4187610&hl=id&z=15&output=embed" 
                     frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
                 </iframe>
             </div>
@@ -350,6 +355,8 @@
     <script>
         // --- KONFIGURASI DAN DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
+        
+        // KOORDINAT JENENGAN (Updated)
         const SELLER_LAT = -7.7612653; 
         const SELLER_LON = 110.4187610;
 
@@ -373,8 +380,8 @@
             4: "Perut kenyang hatipun senang. 🥰"
         };
 
-        // --- HAPUS LOCAL STORAGE (Clean Slate) ---
-        // Tidak ada window.onload untuk load nama.
+        // --- HAPUS LOCAL STORAGE (Sesuai Request) ---
+        // Tidak ada logic load nama otomatis.
 
         // --- LOGIKA VISUAL LOKASI ---
         function pilihMetode(metode) {
@@ -388,22 +395,19 @@
             const groupAlamat = document.getElementById("group-alamat");
 
             if (metode === 'pickup') {
-                // UI SETUP
                 btnPickup.classList.add('active');
                 btnDelivery.classList.remove('active');
                 
-                // Tampilkan Peta Penjual, Sembunyikan Radar User
+                // Tampilkan Peta Penjual
                 sellerPanel.style.display = "block";
                 userPanel.style.display = "none";
                 groupAlamat.style.display = "none";
-
                 hargaOngkir = 0;
             } else {
-                // UI SETUP
                 btnPickup.classList.remove('active');
                 btnDelivery.classList.add('active');
 
-                // Tampilkan Radar User, Sembunyikan Peta Penjual
+                // Tampilkan Radar User
                 sellerPanel.style.display = "none";
                 userPanel.style.display = "block";
                 groupAlamat.style.display = "block";
@@ -415,7 +419,7 @@
 
         function ambilLokasiUser() {
             const textResult = document.getElementById("lokasi-result-text");
-            textResult.innerHTML = "Mencari satelit...";
+            textResult.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari satelit...';
             textResult.style.color = "#636e72";
 
             if (navigator.geolocation) {
@@ -429,6 +433,10 @@
             userLat = position.coords.latitude;
             userLon = position.coords.longitude;
             
+            // Debugging (Opsional: cek di console)
+            console.log("User Loc:", userLat, userLon);
+            console.log("Seller Loc:", SELLER_LAT, SELLER_LON);
+
             let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
             userDistanceKM = jarak.toFixed(2); 
 
@@ -446,7 +454,7 @@
 
         function showError(error) {
             const textResult = document.getElementById("lokasi-result-text");
-            textResult.innerHTML = "❌ Gagal deteksi lokasi. Pastikan GPS aktif!";
+            textResult.innerHTML = "❌ Gagal deteksi lokasi. <br>Klik tombol Refresh GPS!";
             textResult.style.color = "red";
             hargaOngkir = 0;
         }
@@ -526,12 +534,13 @@
             if (metodePengiriman === 'pickup') {
                 teksMetode = "🚶 Ambil Sendiri";
                 rincianOngkir = ""; 
-                alamat = "-"; // Set dash if pickup
+                alamat = "-"; 
             } else {
                 teksMetode = `🛵 Delivery (${userDistanceKM} km)`;
                 rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}\n`;
                 if (userLat !== 0) {
-                    linkMaps = `📍 Maps User: https://maps.google.com/?q=$${userLat},${userLon}\n`;
+                    // LINK MAPS VALID (Bisa diklik driver)
+                    linkMaps = `📍 Maps User: https://www.google.com/maps?q=${userLat},${userLon}\n`;
                 }
             }
 
