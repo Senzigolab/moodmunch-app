@@ -28,7 +28,7 @@
             margin: 0;
             min-height: 100vh;
             color: var(--text-main);
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -69,7 +69,7 @@
             color: var(--primary);
             font-size: 0.9rem;
             font-weight: 500;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: rgba(238, 111, 87, 0.1);
             display: block; 
             width: fit-content;
@@ -109,7 +109,71 @@
             box-shadow: 0 0 0 4px rgba(238, 111, 87, 0.1);
         }
 
-        /* Checkbox Area */
+        /* --- VISUAL LOKASI USER (RADAR) --- */
+        #user-location-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px dashed #ced6e0;
+            display: none; /* Sembunyi jika bukan delivery */
+            animation: fadeIn 0.5s;
+        }
+
+        .radar-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px auto;
+            background: rgba(50, 224, 196, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .radar-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .radar-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--secondary);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); }
+            80%, 100% { opacity: 0; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .location-text { font-size: 0.9rem; color: var(--text-light); }
+        .location-result { font-weight: bold; color: var(--text-main); margin-top: 5px; }
+
+        /* --- VISUAL LOKASI SELLER (MAP) --- */
+        #seller-map-panel {
+            margin-top: 10px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none; /* Default hidden */
+            animation: fadeIn 0.5s;
+        }
+        
+        iframe { width: 100%; border: 0; height: 180px; }
+
+        /* --- STYLE LAIN --- */
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -120,30 +184,26 @@
             border: 1px dashed var(--primary);
         }
         
-        input[type="checkbox"] { 
-            width: 18px; 
-            height: 18px; 
-            accent-color: var(--primary); 
-            cursor: pointer;
-        }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 
-        /* --- STYLE PENGIRIMAN & ONGKIR --- */
-        .delivery-options {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        .delivery-options { display: flex; gap: 10px; margin-bottom: 10px; }
 
         .delivery-option {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #f1f2f6;
             border-radius: 12px;
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
             font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
+
+        .delivery-option i { font-size: 1.2rem; margin-bottom: 2px; }
 
         .delivery-option.active {
             border-color: var(--primary);
@@ -151,22 +211,6 @@
             color: var(--primary);
             font-weight: 600;
         }
-
-        #info-jarak {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            background: #f1f2f6;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 10px;
-            display: none; /* Sembunyi default */
-            border-left: 4px solid var(--secondary);
-        }
-
-        .loading-spin {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .hidden { display: none; }
 
@@ -194,12 +238,7 @@
             box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); 
         }
 
-        .credit {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.75rem;
-            color: #b2bec3;
-        }
+        .credit { text-align: center; margin-top: 30px; font-size: 0.75rem; color: #b2bec3; }
     </style>
 </head>
 <body>
@@ -213,26 +252,41 @@
             <label><i class="fas fa-user-circle" style="color:var(--primary)"></i> Nama Kamu</label>
             <input type="text" id="nama" placeholder="Ketik nama panggilanmu...">
         </div>
+
+        <div id="user-location-panel">
+            <div class="radar-container">
+                <div class="radar-pulse"></div>
+                <div class="radar-dot"></div>
+            </div>
+            <div class="location-text">Mendeteksi Lokasimu...</div>
+            <div id="lokasi-result-text" class="location-result">-</div>
+        </div>
         
         <div class="form-group">
-            <label><i class="fas fa-motorcycle" style="color:var(--primary)"></i> Metode Pesanan</label>
+            <label><i class="fas fa-route" style="color:var(--primary)"></i> Mau Diantar / Ambil?</label>
             <div class="delivery-options">
                 <div class="delivery-option active" id="opt-pickup" onclick="pilihMetode('pickup')">
+                    <i class="fas fa-walking"></i>
                     Ambil Sendiri
                 </div>
                 <div class="delivery-option" id="opt-delivery" onclick="pilihMetode('delivery')">
+                    <i class="fas fa-motorcycle"></i>
                     Delivery
                 </div>
             </div>
-            
-            <div id="info-jarak">
-                <i class="fas fa-map-pin"></i> Mendeteksi lokasimu...
+
+            <div id="seller-map-panel">
+                <label style="margin-left:5px; font-size:0.85rem; color:var(--text-light);">📍 Lokasi Outlet Kami:</label>
+                <iframe 
+                    src="https://maps.google.com/maps?q=-7.7612653,110.4187610&t=&z=17&ie=UTF8&iwloc=&output=embed" 
+                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0">
+                </iframe>
             </div>
         </div>
 
-        <div class="form-group">
-            <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Lokasi Antar / Catatan</label>
-            <input type="text" id="alamat" placeholder="Catatan (Misal: Jangan pakai saos)...">
+        <div class="form-group" id="group-alamat" style="display:none;">
+            <label><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> Detail Alamat / Patokan</label>
+            <input type="text" id="alamat" placeholder="Warna pagar, nomor rumah, dll...">
         </div>
 
         <div class="form-group">
@@ -296,13 +350,9 @@
     <script>
         // --- KONFIGURASI DAN DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
-        
-        // --- UPDATE LOKASI BARU: JENENGAN, MAGUWOHARJO ---
-        // Koordinat area Jenengan
         const SELLER_LAT = -7.7612653; 
         const SELLER_LON = 110.4187610;
 
-        // Variabel Global
         let userLat = 0;
         let userLon = 0;
         let userDistanceKM = 0;
@@ -323,38 +373,55 @@
             4: "Perut kenyang hatipun senang. 🥰"
         };
 
-        // --- 2. FITUR GEOLOCATION & HITUNG ONGKIR ---
-        
+        // --- HAPUS LOCAL STORAGE (Clean Slate) ---
+        // Tidak ada window.onload untuk load nama.
+
+        // --- LOGIKA VISUAL LOKASI ---
         function pilihMetode(metode) {
             metodePengiriman = metode;
             const btnPickup = document.getElementById("opt-pickup");
             const btnDelivery = document.getElementById("opt-delivery");
-            const infoJarak = document.getElementById("info-jarak");
-            const inputAlamat = document.getElementById("alamat");
+            
+            // Elemen Visual
+            const userPanel = document.getElementById("user-location-panel");
+            const sellerPanel = document.getElementById("seller-map-panel");
+            const groupAlamat = document.getElementById("group-alamat");
 
             if (metode === 'pickup') {
+                // UI SETUP
                 btnPickup.classList.add('active');
                 btnDelivery.classList.remove('active');
-                infoJarak.style.display = 'none';
-                inputAlamat.placeholder = "Catatan pesanan (opsional)...";
-                hargaOngkir = 0; // Reset ongkir jika pickup
+                
+                // Tampilkan Peta Penjual, Sembunyikan Radar User
+                sellerPanel.style.display = "block";
+                userPanel.style.display = "none";
+                groupAlamat.style.display = "none";
+
+                hargaOngkir = 0;
             } else {
+                // UI SETUP
                 btnPickup.classList.remove('active');
                 btnDelivery.classList.add('active');
-                infoJarak.style.display = 'block';
-                inputAlamat.placeholder = "Patokan lokasi pengantaran...";
+
+                // Tampilkan Radar User, Sembunyikan Peta Penjual
+                sellerPanel.style.display = "none";
+                userPanel.style.display = "block";
+                groupAlamat.style.display = "block";
+
+                // Trigger GPS
                 ambilLokasiUser();
             }
         }
 
         function ambilLokasiUser() {
-            const infoJarak = document.getElementById("info-jarak");
-            infoJarak.innerHTML = '<i class="fas fa-spinner loading-spin"></i> Mencari koordinatmu...';
+            const textResult = document.getElementById("lokasi-result-text");
+            textResult.innerHTML = "Mencari satelit...";
+            textResult.style.color = "#636e72";
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                infoJarak.innerHTML = "Browser tidak support lokasi.";
+                textResult.innerHTML = "Browser tidak support lokasi.";
             }
         }
 
@@ -362,67 +429,46 @@
             userLat = position.coords.latitude;
             userLon = position.coords.longitude;
             
-            // Hitung Jarak
             let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
             userDistanceKM = jarak.toFixed(2); 
 
-            // --- LOGIKA ONGKIR ---
             let ketOngkir = "";
-            
-            if (userDistanceKM <= 4) {
-                hargaOngkir = 5000;
-                ketOngkir = "Zona Kampus";
-            } else if (userDistanceKM <= 9) {
-                hargaOngkir = 10000;
-                ketOngkir = "Zona Nongkrong";
-            } else if (userDistanceKM <= 15) {
-                hargaOngkir = 15000;
-                ketOngkir = "Luar Kota/Jauh";
-            } else {
-                hargaOngkir = 20000;
-                ketOngkir = "Extra Jauh";
-            }
+            if (userDistanceKM <= 4) { hargaOngkir = 5000; ketOngkir = "Zona Kampus"; } 
+            else if (userDistanceKM <= 9) { hargaOngkir = 10000; ketOngkir = "Zona Nongkrong"; } 
+            else if (userDistanceKM <= 15) { hargaOngkir = 15000; ketOngkir = "Luar Kota"; } 
+            else { hargaOngkir = 20000; ketOngkir = "Extra Jauh"; }
 
-            const infoJarak = document.getElementById("info-jarak");
-            infoJarak.innerHTML = `
-                <div>📍 Jarak: <b>${userDistanceKM} km</b> (${ketOngkir})</div>
-                <div style="margin-top:5px; font-size:1.1rem; color:var(--primary); font-weight:bold;">
-                    🛵 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}
-                </div>
-            `;
+            // Update Visual Hasil
+            const textResult = document.getElementById("lokasi-result-text");
+            textResult.innerHTML = `📍 Terdeteksi: ${userDistanceKM} km (${ketOngkir}) <br> <span style="color:#EE6F57">Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}</span>`;
+            textResult.style.color = "#2D3436";
         }
 
         function showError(error) {
-            const infoJarak = document.getElementById("info-jarak");
-            infoJarak.innerHTML = "❌ Gagal deteksi lokasi. Izinkan GPS ya!";
-            hargaOngkir = 0; // Default jika gagal
+            const textResult = document.getElementById("lokasi-result-text");
+            textResult.innerHTML = "❌ Gagal deteksi lokasi. Pastikan GPS aktif!";
+            textResult.style.color = "red";
+            hargaOngkir = 0;
         }
 
         function hitungJarak(lat1, lon1, lat2, lon2) {
             var R = 6371; 
             var dLat = deg2rad(lat2 - lat1);
             var dLon = deg2rad(lon2 - lon1);
-            var a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
             return R * c; 
         }
 
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
-        // --- FUNGSI UTAMA ---
-
         function cekMood() {
             let moodVal = document.getElementById("mood").value;
             let selectMakan = document.getElementById("makan");
             let zonaPedas = document.getElementById("zona-pedas");
-            
             selectMakan.innerHTML = '<option value="0">-- Pilih Menu --</option>';
-
             if (moodVal == 1) { zonaPedas.classList.remove("hidden"); } 
             else { zonaPedas.classList.add("hidden"); }
-
             if (menuData[moodVal]) {
                 menuData[moodVal].forEach((item) => {
                     let option = document.createElement("option");
@@ -438,34 +484,25 @@
             let punyaMaag = document.getElementById("punya_maag").checked;
             let divKonfirmasi = document.getElementById("konfirmasi-maag");
             if (punyaMaag) divKonfirmasi.classList.remove("hidden");
-            else {
-                divKonfirmasi.classList.add("hidden");
-                document.getElementById("yakin_lanjut").checked = false;
-            }
+            else { divKonfirmasi.classList.add("hidden"); document.getElementById("yakin_lanjut").checked = false; }
         }
 
-        // --- BAGIAN INI SUDAH DIPERBAIKI (Link Maps & Format Pesan) ---
         function kirimKeWA() {
             let nama = document.getElementById("nama").value;
             let alamat = document.getElementById("alamat").value;
             let mood = parseInt(document.getElementById("mood").value);
             
             if (!nama) { alert("Halo kak, isi namanya dulu ya! 😊"); return; }
-            if (metodePengiriman === 'delivery' && !alamat) { alert("Alamat/Patokan pengantarannya diisi dulu kak!"); return; }
+            if (metodePengiriman === 'delivery' && !alamat) { alert("Detail alamatnya diisi dulu kak!"); return; }
             if (mood === 0) { alert("Pilih Mood dulu ya kak!"); return; }
-
             if (mood === 1) {
                 let isMaag = document.getElementById("punya_maag").checked;
                 let isYakin = document.getElementById("yakin_lanjut").checked;
-                if (isMaag && !isYakin) {
-                    alert("Maaf kak, demi kesehatan lambung kakak, ganti menu lain aja ya 🙏");
-                    return;
-                }
+                if (isMaag && !isYakin) { alert("Maaf kak, demi kesehatan lambung kakak, ganti menu lain aja ya 🙏"); return; }
             }
 
             let selectMakan = document.getElementById("makan");
             let hargaMakan = parseInt(selectMakan.value);
-            // Ambil data-nama dengan aman
             let namaMakan = selectMakan.options[selectMakan.selectedIndex].getAttribute("data-nama");
 
             if (isNaN(hargaMakan)) { alert("Pilih Makanannya dulu kak!"); return; }
@@ -480,10 +517,8 @@
                 infoPedas = " (Level " + level + ")";
             }
 
-            // HITUNG TOTAL AKHIR
             let total = hargaMakan + hargaMinum + hargaOngkir;
             let quote = quotesData[mood];
-
             let teksMetode = "";
             let rincianOngkir = "";
             let linkMaps = "";
@@ -491,22 +526,19 @@
             if (metodePengiriman === 'pickup') {
                 teksMetode = "🚶 Ambil Sendiri";
                 rincianOngkir = ""; 
+                alamat = "-"; // Set dash if pickup
             } else {
                 teksMetode = `🛵 Delivery (${userDistanceKM} km)`;
-                // Gunakan \n (newline) untuk codingan yang rapi
                 rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}\n`;
-                
                 if (userLat !== 0) {
-                    // LINK MAPS DIPERBAIKI: Menggunakan format standard Google Maps
-                    linkMaps = `📍 Maps: https://www.google.com/maps?q=${userLat},${userLon}\n`;
+                    linkMaps = `📍 Maps User: https://maps.google.com/?q=$${userLat},${userLon}\n`;
                 }
             }
 
-            // TEMPLATE PESAN WA (Menggunakan \n untuk Enter)
             let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!\n\n` +
                           `🙋‍♀️ Nama: *${nama}*\n` +
                           `⚙️ Metode: ${teksMetode}\n` +
-                          `🏠 Alamat/Patokan: ${alamat}\n` +
+                          `🏠 Alamat: ${alamat}\n` +
                           `${linkMaps}` +
                           `--------------------------------\n` +
                           `🍽️ Menu: ${namaMakan}${infoPedas}\n` +
@@ -517,12 +549,9 @@
                           `✨ _"${quote}"_\n\n` +
                           `Ditunggu ya kak!`;
 
-            // ENCODE URI COMPONENT (Agar spasi dan enter terbaca WA otomatis)
             let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${encodeURIComponent(pesanWA)}`;
-            
             window.open(link, '_blank');
         }
     </script>
 </body>
 </html>
-
