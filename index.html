@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- STYLE SAMA SEPERTI SEBELUMNYA --- */
-        :root { --primary: #EE6F57; --secondary: #32E0C4; --bg-color: #F7F7F5; --card-bg: #FFFFFF; --text-main: #2D3436; }
+        /* --- STYLE DASAR (SAMA) --- */
+        :root { --primary: #EE6F57; --secondary: #32E0C4; --bg-color: #F7F7F5; --card-bg: #FFFFFF; --text-main: #2D3436; --text-light: #636e72; }
         body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; padding: 20px; margin: 0; min-height: 100vh; color: var(--text-main); background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1947&auto=format&fit=crop'); background-size: cover; background-position: center; background-attachment: fixed; }
         .container { background-color: var(--card-bg); padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 480px; width: 100%; border: 1px solid #eee; position: relative; overflow: hidden; }
         .header-decor { background: linear-gradient(135deg, var(--primary), #ff9f43); height: 8px; width: 100%; position: absolute; top: 0; left: 0; }
@@ -50,8 +50,11 @@
         .btn-pesan:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4); }
         .credit { text-align: center; margin-top: 30px; font-size: 0.75rem; color: #b2bec3; }
         
-        /* DEBUG TEXT */
         .debug-info { font-size: 0.7rem; color: #b2bec3; margin-top: 5px; font-family: monospace; }
+        
+        /* Loading Text Animation */
+        .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
+        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 80%, 100% { content: ''; } }
     </style>
 </head>
 <body>
@@ -75,11 +78,11 @@
             <div id="lokasi-result-text" class="location-result">-</div>
             
             <div class="debug-info">
-                Koordinatmu: <span id="debug-lat">-</span>, <span id="debug-lon">-</span>
+                Koordinat: <span id="debug-lat">-</span>, <span id="debug-lon">-</span>
             </div>
             
             <button class="btn-refresh" onclick="ambilLokasiUser()">
-                <i class="fas fa-sync-alt"></i> Refresh GPS (Akurat)
+                <i class="fas fa-sync-alt"></i> Refresh GPS
             </button>
         </div>
         
@@ -183,6 +186,7 @@
         let userDistanceKM = 0;
         let metodePengiriman = 'pickup'; 
         let hargaOngkir = 0; 
+        let metodeHitung = "Garis Lurus"; // Untuk debug
 
         const menuData = {
             1: [ { nama: "Basreng Stik", harga: 8000 }, { nama: "Makaroni Bantet", harga: 5000 } ],
@@ -227,12 +231,10 @@
 
         function ambilLokasiUser() {
             const textResult = document.getElementById("lokasi-result-text");
-            textResult.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari satelit...';
+            textResult.innerHTML = '<span class="loading-dots">Menghitung rute jalan raya</span>';
             textResult.style.color = "#636e72";
 
             if (navigator.geolocation) {
-                // UPDATE PENTING: Menambahkan options { enableHighAccuracy: true }
-                // Ini memaksa browser usaha lebih keras cari GPS akurat
                 navigator.geolocation.getCurrentPosition(showPosition, showError, {
                     enableHighAccuracy: true,
                     timeout: 10000,
@@ -243,49 +245,81 @@
             }
         }
 
+        // FUNGSI BARU: HITUNG PAKAI OSRM (JALAN RAYA)
+        function hitungJarakJalanRaya(lat1, lon1, lat2, lon2) {
+            // URL OSRM (Free API)
+            // Format: {longitude},{latitude};{longitude},{latitude}
+            const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === "Ok") {
+                        // Jarak dalam meter, ubah ke KM
+                        let jarakMeter = data.routes[0].distance;
+                        let jarakKM = (jarakMeter / 1000).toFixed(2);
+                        
+                        // Update UI dengan hasil OSRM
+                        metodeHitung = "Jalan Raya (OSRM)";
+                        updateUIJarak(jarakKM);
+                    } else {
+                        // Jika OSRM gagal, pakai fallback
+                        console.log("OSRM Gagal, fallback ke Haversine");
+                        hitungJarakFallback(lat1, lon1, lat2, lon2);
+                    }
+                })
+                .catch(error => {
+                    console.log("Error koneksi OSRM, fallback ke Haversine");
+                    hitungJarakFallback(lat1, lon1, lat2, lon2);
+                });
+        }
+
+        // FALLBACK: RUMUS GARIS LURUS (Kalau OSRM Down)
+        function hitungJarakFallback(lat1, lon1, lat2, lon2) {
+            var R = 6371; 
+            var dLat = deg2rad(lat2 - lat1);
+            var dLon = deg2rad(lon2 - lon1);
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            
+            // Tambah buffer 1.4x lipat untuk estimasi jalan belok-belok
+            let hasil = (R * c) * 1.4;
+            
+            metodeHitung = "Estimasi Garis Lurus";
+            updateUIJarak(hasil.toFixed(2));
+        }
+
         function showPosition(position) {
             userLat = position.coords.latitude;
             userLon = position.coords.longitude;
             
-            // TAMPILKAN KOORDINAT DI LAYAR (DEBUGGING)
             document.getElementById("debug-lat").innerText = userLat.toFixed(5);
             document.getElementById("debug-lon").innerText = userLon.toFixed(5);
 
-            let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
-            userDistanceKM = jarak.toFixed(2); 
+            // PANGGIL FUNGSI HITUNG BARU
+            hitungJarakJalanRaya(userLat, userLon, SELLER_LAT, SELLER_LON);
+        }
 
+        function updateUIJarak(jarak) {
+            userDistanceKM = jarak;
             let ketOngkir = "";
+            
+            // UPDATE LOGIKA ONGKIR (Disesuaikan karena jarak jalan raya biasanya lebih jauh)
             if (userDistanceKM <= 4) { hargaOngkir = 5000; ketOngkir = "Zona Kampus"; } 
             else if (userDistanceKM <= 9) { hargaOngkir = 10000; ketOngkir = "Zona Nongkrong"; } 
             else if (userDistanceKM <= 15) { hargaOngkir = 15000; ketOngkir = "Luar Kota"; } 
             else { hargaOngkir = 20000; ketOngkir = "Extra Jauh"; }
 
             const textResult = document.getElementById("lokasi-result-text");
-            textResult.innerHTML = `📍 Terdeteksi: ${userDistanceKM} km (${ketOngkir}) <br> <span style="color:#EE6F57">Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}</span>`;
+            textResult.innerHTML = `📍 Rute: <b>${userDistanceKM} km</b> <br> <span style="font-size:0.8rem; color:#636e72">(${metodeHitung})</span> <br> <span style="color:#EE6F57; font-weight:bold;">Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}</span>`;
             textResult.style.color = "#2D3436";
         }
 
         function showError(error) {
             const textResult = document.getElementById("lokasi-result-text");
-            let msg = "Gagal deteksi lokasi.";
-            switch(error.code) {
-                case error.PERMISSION_DENIED: msg = "❌ Akses lokasi ditolak user."; break;
-                case error.POSITION_UNAVAILABLE: msg = "❌ Sinyal GPS tidak ditemukan."; break;
-                case error.TIMEOUT: msg = "❌ Waktu habis mencari sinyal."; break;
-            }
-            textResult.innerHTML = msg + "<br><small>Coba refresh atau pindah tempat.</small>";
+            textResult.innerHTML = "❌ Gagal deteksi lokasi. <br><small>Coba refresh atau pindah tempat.</small>";
             textResult.style.color = "red";
             hargaOngkir = 0;
-        }
-
-        // RUMUS HAVERSINE (Tidak berubah karena sudah benar)
-        function hitungJarak(lat1, lon1, lat2, lon2) {
-            var R = 6371; 
-            var dLat = deg2rad(lat2 - lat1);
-            var dLon = deg2rad(lon2 - lon1);
-            var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            return R * c; 
         }
 
         function deg2rad(deg) { return deg * (Math.PI/180); }
@@ -359,7 +393,6 @@
                 teksMetode = `🛵 Delivery (${userDistanceKM} km)`;
                 rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}\n`;
                 if (userLat !== 0) {
-                    // LINK MAPS USER (Bisa diklik driver)
                     linkMaps = `📍 Maps User: https://www.google.com/maps/search/?api=1&query=${userLat},${userLon}\n`;
                 }
             }
