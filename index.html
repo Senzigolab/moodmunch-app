@@ -163,18 +163,6 @@
             border-left: 4px solid var(--secondary);
         }
 
-        /* Tampilan harga ongkir */
-        .ongkir-badge {
-            display: inline-block;
-            background-color: var(--primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            margin-left: 5px;
-            font-weight: 600;
-        }
-
         .loading-spin {
             animation: spin 1s linear infinite;
         }
@@ -309,16 +297,17 @@
         // --- KONFIGURASI DAN DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
         
-        // Lokasi Penjual (Jl. Flamboyan, Condong Catur)
-        const SELLER_LAT = -7.759353; 
-        const SELLER_LON = 110.395758;
+        // --- UPDATE LOKASI BARU: JENENGAN, MAGUWOHARJO ---
+        // Koordinat area Jenengan
+        const SELLER_LAT = -7.7612653; 
+        const SELLER_LON = 110.4187610;
 
         // Variabel Global
         let userLat = 0;
         let userLon = 0;
         let userDistanceKM = 0;
         let metodePengiriman = 'pickup'; 
-        let hargaOngkir = 0; // Menyimpan harga ongkir aktif
+        let hargaOngkir = 0; 
 
         const menuData = {
             1: [ { nama: "Basreng Stik", harga: 8000 }, { nama: "Makaroni Bantet", harga: 5000 } ],
@@ -390,7 +379,7 @@
             let jarak = hitungJarak(userLat, userLon, SELLER_LAT, SELLER_LON);
             userDistanceKM = jarak.toFixed(2); 
 
-            // --- LOGIKA ONGKIR BARU ---
+            // --- LOGIKA ONGKIR ---
             let ketOngkir = "";
             
             if (userDistanceKM <= 4) {
@@ -435,7 +424,7 @@
 
         function deg2rad(deg) { return deg * (Math.PI/180); }
 
-        // --- FUNGSI LAMA (LOGIKA MOOD & PESAN) ---
+        // --- FUNGSI UTAMA ---
 
         function cekMood() {
             let moodVal = document.getElementById("mood").value;
@@ -468,6 +457,7 @@
             }
         }
 
+        // --- BAGIAN INI SUDAH DIPERBAIKI (Link Maps & Format Pesan) ---
         function kirimKeWA() {
             let nama = document.getElementById("nama").value;
             let alamat = document.getElementById("alamat").value;
@@ -488,6 +478,7 @@
 
             let selectMakan = document.getElementById("makan");
             let hargaMakan = parseInt(selectMakan.value);
+            // Ambil data-nama dengan aman
             let namaMakan = selectMakan.options[selectMakan.selectedIndex].getAttribute("data-nama");
 
             if (isNaN(hargaMakan)) { alert("Pilih Makanannya dulu kak!"); return; }
@@ -502,46 +493,48 @@
                 infoPedas = " (Level " + level + ")";
             }
 
-            // HITUNG TOTAL AKHIR (Makanan + Minum + Ongkir)
+            // HITUNG TOTAL AKHIR
             let total = hargaMakan + hargaMinum + hargaOngkir;
             let quote = quotesData[mood];
 
             let teksMetode = "";
             let rincianOngkir = "";
+            let linkMaps = "";
 
             if (metodePengiriman === 'pickup') {
                 teksMetode = "🚶 Ambil Sendiri";
-                rincianOngkir = ""; // Tidak perlu rincian ongkir kalau pickup
+                rincianOngkir = ""; 
             } else {
-                // Tampilkan rincian ongkir di WA
                 teksMetode = `🛵 Delivery (${userDistanceKM} km)`;
-                rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}%0a`;
+                // Gunakan \n (newline) untuk codingan yang rapi
+                rincianOngkir = `📦 Ongkir: Rp ${hargaOngkir.toLocaleString('id-ID')}\n`;
+                
+                if (userLat !== 0) {
+                    // LINK MAPS DIPERBAIKI: Menggunakan format standard Google Maps
+                    linkMaps = `📍 Maps: https://www.google.com/maps?q=${userLat},${userLon}\n`;
+                }
             }
 
-            let linkMaps = "";
-            if (userLat !== 0 && metodePengiriman === 'delivery') {
-                // Link Google Maps agar driver mudah mencari
-                linkMaps = `📍 Maps: https://www.google.com/maps/search/?api=1&query=${userLat},${userLon}%0a`;
-            }
-
-            let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!%0a%0a` +
-                          `🙋‍♀️ Nama: *${nama}*%0a` +
-                          `⚙️ Metode: ${teksMetode}%0a` +
-                          `🏠 Alamat/Patokan: ${alamat}%0a` +
+            // TEMPLATE PESAN WA (Menggunakan \n untuk Enter)
+            let pesanWA = `Hai kak *Erynd*, saya mau pesan *MOODMUNCH* dong!\n\n` +
+                          `🙋‍♀️ Nama: *${nama}*\n` +
+                          `⚙️ Metode: ${teksMetode}\n` +
+                          `🏠 Alamat/Patokan: ${alamat}\n` +
                           `${linkMaps}` +
-                          `--------------------------------%0a` +
-                          `🍽️ Menu: ${namaMakan}${infoPedas}%0a` +
-                          `🥤 Minum: ${namaMinum}%0a` +
-                          `${rincianOngkir}` + // Baris ongkir ditambahkan
-                          `💰 *Total Bayar: Rp ${total.toLocaleString('id-ID')}*%0a` +
-                          `--------------------------------%0a` +
-                          `✨ _"${quote}"_%0a%0a` +
-                          `Ditunggu ya kak!,Gercep`;
+                          `--------------------------------\n` +
+                          `🍽️ Menu: ${namaMakan}${infoPedas}\n` +
+                          `🥤 Minum: ${namaMinum}\n` +
+                          `${rincianOngkir}` + 
+                          `💰 *Total Bayar: Rp ${total.toLocaleString('id-ID')}*\n` +
+                          `--------------------------------\n` +
+                          `✨ _"${quote}"_\n\n` +
+                          `Ditunggu ya kak!`;
 
-            let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${pesanWA}`;
+            // ENCODE URI COMPONENT (Agar spasi dan enter terbaca WA otomatis)
+            let link = `https://wa.me/${NOMOR_WA_PENJUAL}?text=${encodeURIComponent(pesanWA)}`;
+            
             window.open(link, '_blank');
         }
     </script>
 </body>
 </html>
-
