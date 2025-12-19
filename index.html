@@ -323,19 +323,6 @@
             4: "Perut kenyang hatipun senang. 🥰"
         };
 
-        // --- 1. FITUR LOCAL STORAGE (MENGINGAT NAMA) ---
-        window.onload = function() {
-            let savedName = localStorage.getItem("moodmunch_user_name");
-            if (savedName) {
-                document.getElementById("nama").value = savedName;
-            }
-        };
-
-        document.getElementById("nama").addEventListener("input", function() {
-            localStorage.setItem("moodmunch_user_name", this.value);
-        });
-
-
         // --- 2. FITUR GEOLOCATION & HITUNG ONGKIR ---
         
         function pilihMetode(metode) {
@@ -538,3 +525,4 @@
     </script>
 </body>
 </html>
+
