@@ -2,386 +2,345 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MOODMUNCH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- STYLE DASAR --- */
-        :root { --primary: #EE6F57; --secondary: #32E0C4; --bg-color: #F7F7F5; --card-bg: #FFFFFF; --text-main: #2D3436; }
-        body { font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; padding: 20px; margin: 0; min-height: 100vh; background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; }
-        .container { background-color: var(--card-bg); padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-width: 480px; width: 100%; border: 1px solid #eee; position: relative; overflow: hidden; }
+        /* --- STYLE DASAR & VARIABLES --- */
+        :root {
+            --primary: #EE6F57;
+            --primary-soft: #fff0ed;
+            --secondary: #32E0C4;
+            --text-dark: #2D3436;
+            --text-grey: #636e72;
+            --bg-body: #F0F2F5;
+            --card-radius: 16px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; margin: 0; padding: 20px; min-height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            display: flex; justify-content: center; align-items: center;
+        }
+        /* Lapisan gelap di atas background agar teks terbaca */
+        body::before { content:''; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:-1; }
+
+        .main-container {
+            background-color: #ffffff; padding: 25px; border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-width: 420px; width: 100%;
+            position: relative; overflow: hidden; backdrop-filter: blur(10px); /* Sedikit efek kaca di container utama */
+        }
+
+        h1 { color: var(--text-dark); text-align: center; margin: 5px 0; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+        .subtitle { text-align: center; color: var(--primary); font-size: 0.9rem; font-weight: 500; margin-bottom: 25px; display: block; }
         
-        h1 { color: var(--text-main); text-align: center; margin: 10px 0 5px 0; font-size: 1.8rem; font-weight: 600; }
-        .subtitle { text-align: center; color: var(--primary); font-size: 0.9rem; margin-bottom: 25px; display: block; background: rgba(238, 111, 87, 0.1); padding: 5px 15px; border-radius: 20px; width: fit-content; margin-left: auto; margin-right: auto; }
-        
-        /* FORM ELEMENTS */
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #f1f2f6; background: #fcfcfc; font-family: 'Poppins'; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); outline: none; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text-dark); font-size: 0.95rem; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 14px; border-radius: var(--card-radius); border: 2px solid #f1f2f6;
+            background: #f8f9fa; font-family: 'Poppins'; font-size: 1rem; box-sizing: border-box; transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); background: #fff; outline: none; }
 
-        /* --- VISUAL MOOD CARDS (PENGGANTI DROPDOWN) --- */
-        .mood-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        /* --- MODERN MOOD SELECTOR --- */
+        .mood-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .mood-card {
-            background: #fff; border: 2px solid #f1f2f6; border-radius: 15px;
-            padding: 15px; text-align: center; cursor: pointer; transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #fff; border: 2px solid #f1f2f6; border-radius: var(--card-radius);
+            padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column; align-items: center;
         }
-        .mood-card i { font-size: 2rem; margin-bottom: 8px; transition: 0.3s; }
-        .mood-card span { font-size: 0.85rem; font-weight: 500; color: #636e72; }
+        .mood-card i { font-size: 2.2rem; margin-bottom: 10px; transition: 0.3s; }
+        .mood-card span { font-size: 0.85rem; font-weight: 600; color: var(--text-grey); }
         
-        /* State Aktif untuk Mood */
-        .mood-card.active { border-color: var(--primary); background: #fff0ed; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(238, 111, 87, 0.2); }
-        .mood-card.active i { transform: scale(1.2); }
-        
-        /* Warna Khusus Icon Mood */
-        .mood-1 i { color: #ff4757; } /* Marah - Merah */
-        .mood-2 i { color: #5352ed; } /* Sedih - Biru */
-        .mood-3 i { color: #ffa502; } /* Gabut - Orange */
-        .mood-4 i { color: #2ed573; } /* Lapar - Hijau */
+        /* State Aktif Mood */
+        .mood-card.active { border-color: var(--primary); background: var(--primary-soft); transform: translateY(-4px); box-shadow: 0 8px 20px rgba(238, 111, 87, 0.15); }
+        .mood-1 i { color: #ff4757; } .mood-2 i { color: #5352ed; }
+        .mood-3 i { color: #ffa502; } .mood-4 i { color: #2ed573; }
 
-        /* --- VISUAL MENU CARDS (MAKANAN) --- */
-        #menu-container { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 10px; }
-        .menu-card {
-            display: flex; align-items: center; background: #fff; border: 2px solid #f1f2f6;
-            border-radius: 15px; padding: 10px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
+        /* --- TOMBOL BUKA MENU (Muncul setelah pilih mood) --- */
+        .btn-open-menu {
+            width: 100%; padding: 15px; background: var(--text-dark); color: white;
+            border: none; border-radius: var(--card-radius); font-size: 1rem; font-weight: 600;
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px;
+            transition: 0.3s; animation: slideUpFade 0.5s ease;
         }
-        .menu-card img {
-            width: 70px; height: 70px; border-radius: 12px; object-fit: cover; margin-right: 15px; background: #eee;
-        }
-        .menu-info { flex: 1; }
-        .menu-title { font-weight: 600; font-size: 0.95rem; color: #2d3436; margin-bottom: 4px; }
-        .menu-price { color: var(--primary); font-weight: 600; font-size: 0.9rem; }
-        
-        .menu-card.active { border-color: var(--secondary); background: #e0fbf7; }
-        .menu-card:hover { transform: translateX(5px); }
+        .btn-open-menu:hover { background: #000; transform: scale(1.02); }
+        @keyframes slideUpFade { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-        /* Checkbox Maag & Pedas */
+        /* --- MODERN DRINK SELECTOR (Pengganti Dropdown) --- */
+        .drink-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .drink-card {
+            background: #fff; border: 2px solid #f1f2f6; border-radius: 12px; padding: 12px;
+            text-align: left; cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .drink-card .d-name { font-weight: 600; font-size: 0.9rem; color: var(--text-dark); display: block; }
+        .drink-card .d-price { font-size: 0.85rem; color: var(--primary); font-weight: 500; }
+        .drink-card .d-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #ddd; font-size: 1.2rem; }
+        .drink-card.active { border-color: var(--primary); background: var(--primary-soft); }
+        .drink-card.active .d-icon { color: var(--primary); }
+
+
+        /* --- MODAL MENU MAKANAN (Tampilan Layar Timbul Modern) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Gelap transparan */
+            backdrop-filter: blur(12px); /* EFEK BLUR MODERN KACA BURAM */
+            -webkit-backdrop-filter: blur(12px); /* Support Safari */
+            z-index: 1000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; box-sizing: border-box;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: #fff; width: 100%; max-width: 400px; border-radius: 24px;
+            padding: 25px; position: relative; transform: translateY(50px); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            max-height: 85vh; overflow-y: auto; /* Agar bisa discroll jika menu banyak */
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+        .btn-close-modal { background: #f1f2f6; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; color: var(--text-dark); cursor: pointer; transition:0.2s; }
+        .btn-close-modal:hover { background: #e1e2e6; }
+
+        /* KARTU MAKANAN BESAR DI DALAM MODAL */
+        .big-food-card {
+            background: #fff; border-radius: 20px; overflow: hidden; margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #f1f2f6; cursor: pointer; transition: 0.3s;
+        }
+        .big-food-img {
+            width: 100%; height: 180px; /* GAMBAR BESAR */
+            object-fit: cover; background: #eee;
+        }
+        .big-food-details { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .food-name-large { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); }
+        .food-price-large { font-size: 1rem; font-weight: 600; color: var(--primary); }
+        
+        .big-food-card.active { border-color: var(--primary); background: var(--primary-soft); transform: scale(1.02); }
+
+
+        /* --- LAINNYA --- */
         .hidden { display: none; }
-        .warning-box { background: #fff0ed; padding: 12px; border-radius: 12px; border: 1px dashed var(--primary); margin-top: 10px; font-size: 0.85rem; }
-        .delivery-options { display: flex; gap: 10px; }
-        .delivery-option { flex: 1; padding: 10px; border: 2px solid #f1f2f6; border-radius: 12px; text-align: center; cursor: pointer; font-size: 0.9rem; }
-        .delivery-option.active { border-color: var(--primary); background: rgba(238, 111, 87, 0.1); color: var(--primary); font-weight: 600; }
+        .delivery-options { display: flex; gap: 12px; background: #f8f9fa; padding: 5px; border-radius: 16px; }
+        .delivery-option { flex: 1; padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text-grey); transition: 0.3s; }
+        .delivery-option.active { background: #fff; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        /* Button Pesan */
-        .btn-pesan { width: 100%; padding: 16px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; border-radius: 15px; font-size: 1.1rem; cursor: pointer; font-weight: 600; margin-top: 25px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-pesan:hover { transform: translateY(-3px); }
-        
-        /* Misc */
-        .credit { text-align: center; margin-top: 30px; font-size: 0.75rem; color: #b2bec3; }
-        iframe { width: 100%; height: 150px; border-radius: 10px; border:0; margin-top: 10px; }
+        .btn-pesan { width: 100%; padding: 16px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; border-radius: var(--card-radius); font-size: 1.1rem; cursor: pointer; font-weight: 600; margin-top: 25px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-pesan:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(37, 211, 102, 0.4); }
+        .credit { text-align: center; margin-top: 30px; font-size: 0.8rem; color: rgba(255,255,255,0.7); }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="main-container">
         <h1>MOODMUNCH</h1>
-        <span class="subtitle">✨ Pilih Mood, Muncul Rasa ✨</span>
+        <span class="subtitle">Treat Your Mood Today ✨</span>
         
         <div class="form-group">
-            <label>Siapa Namamu?</label>
-            <input type="text" id="nama" placeholder="Isi nama panggilan...">
+            <label>👋 Siapa namamu?</label>
+            <input type="text" id="nama" placeholder="Ketik nama panggilan...">
         </div>
 
         <div class="form-group">
-            <label>Metode Pengambilan</label>
+            <label>Mau diantar / ambil?</label>
             <div class="delivery-options">
                 <div class="delivery-option active" id="opt-pickup" onclick="pilihMetode('pickup')">
-                    <i class="fas fa-walking"></i> Ambil Sendiri
+                    <i class="fas fa-store"></i> Ambil Sendiri
                 </div>
                 <div class="delivery-option" id="opt-delivery" onclick="pilihMetode('delivery')">
                     <i class="fas fa-motorcycle"></i> Delivery
                 </div>
             </div>
-            
-            <div id="info-lokasi" style="margin-top:15px; font-size:0.9rem; color:#636e72;">
+            <div id="info-lokasi" style="margin-top:15px; font-size:0.9rem; color:var(--text-grey); background:#f8f9fa; padding:10px; border-radius:12px;">
                 </div>
-        </div>
-
-        <div class="form-group hidden" id="group-alamat">
-            <input type="text" id="alamat" placeholder="Detail Alamat / Patokan rumah...">
+            <input type="text" id="alamat" class="hidden" placeholder="Detail Alamat / Patokan..." style="margin-top: 10px;">
         </div>
 
         <div class="form-group">
-            <label>Lagi Merasa Apa?</label>
+            <label>🤔 Lagi merasa apa sekarang?</label>
             <div class="mood-grid">
                 <div class="mood-card mood-1" onclick="pilihMood(1, this)">
-                    <i class="fas fa-fire-alt"></i>
-                    <span>Stress/Marah</span>
+                    <i class="fas fa-fire"></i> <span>Stress / Marah</span>
                 </div>
                 <div class="mood-card mood-2" onclick="pilihMood(2, this)">
-                    <i class="fas fa-cloud-rain"></i>
-                    <span>Sedih/Galau</span>
+                    <i class="fas fa-cloud-showers-heavy"></i> <span>Sedih / Galau</span>
                 </div>
                 <div class="mood-card mood-3" onclick="pilihMood(3, this)">
-                    <i class="fas fa-meh-rolling-eyes"></i>
-                    <span>Gabut/Bosan</span>
+                    <i class="fas fa-meh-rolling-eyes"></i> <span>Gabut / Bosan</span>
                 </div>
                 <div class="mood-card mood-4" onclick="pilihMood(4, this)">
-                    <i class="fas fa-grin-tongue-wink"></i>
-                    <span>Happy/Lapar</span>
+                    <i class="fas fa-laugh-beam"></i> <span>Happy / Lapar</span>
                 </div>
             </div>
             <input type="hidden" id="selected_mood" value="0">
         </div>
 
-        <div id="zona-pedas" class="hidden">
-            <div class="warning-box">
-                <input type="checkbox" id="punya_maag" onchange="cekMaag()"> 
-                <label for="punya_maag" style="display:inline; color: #d63031;">Punya riwayat Maag?</label>
-                
-                <div id="konfirmasi-maag" class="hidden" style="margin-top:5px; padding-top:5px; border-top:1px solid #ffcccb">
-                    <input type="checkbox" id="yakin_lanjut">
-                    <label for="yakin_lanjut" style="display:inline; font-size:0.8rem;">Saya mengerti & lanjut.</label>
+        <div id="menu-trigger-area" class="hidden form-group">
+            <label>👇 Rekomendasi Menu Untukmu</label>
+            <button class="btn-open-menu" onclick="bukaModalMenu()">
+                <i class="fas fa-utensils"></i> LIHAT MENU SPESIAL
+            </button>
+            
+            <div id="food-preview" class="hidden" style="margin-top:15px; background:var(--primary-soft); padding:15px; border-radius:12px; border:2px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size:0.8rem; color:var(--primary);">Menu Terpilih:</span><br>
+                    <strong id="preview-food-name" style="font-size:1.05rem;">-</strong>
                 </div>
-            </div>
-            <div style="margin-top:10px;">
-                <label style="font-size:0.85rem;">Level Pedas (1-5):</label>
-                <input type="number" id="level_pedas" min="1" max="5" value="1" style="width:60px;">
+                <strong id="preview-food-price" style="color:var(--primary); font-size:1.1rem;">-</strong>
             </div>
         </div>
 
-        <div class="form-group hidden" id="group-menu">
-            <label>Rekomendasi Menu Buat Kamu:</label>
-            <div id="menu-container">
-                </div>
-            <input type="hidden" id="selected_food_price" value="0">
-            <input type="hidden" id="selected_food_name" value="">
+        <div id="zona-pedas" class="hidden form-group" style="background: #fff0ed; padding: 15px; border-radius: 16px; border: 1px dashed var(--primary);">
+             <label style="color: #d63031; margin-bottom:5px;"><i class="fas fa-triangle-exclamation"></i> Zona Bahaya Pedas</label>
+             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <input type="checkbox" id="punya_maag" style="width:20px; height:20px;">
+                <span style="font-size:0.9rem;">Ada riwayat Maag?</span>
+             </div>
+             <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:0.9rem; flex:1;">Level Pedas (1-5):</span>
+                <input type="number" id="level_pedas" min="1" max="5" value="1" style="width:70px;">
+             </div>
         </div>
 
-        <div class="form-group">
-            <label>Minumnya?</label>
-            <select id="minum">
-                <option value="0">-- Pilih Minuman --</option>
-                <option value="3000">Es Teh Kecil (Rp 3.000)</option>
-                <option value="5000">Es Teh JUMBO (Rp 5.000)</option>
-                <option value="5000">Es Jeruk Peras (Rp 5.000)</option>
-                <option value="3000">Air Mineral (Rp 3.000)</option>
-            </select>
+        <div class="form-group" style="margin-top: 25px;">
+            <label>🥤 Tambah Minuman Segar?</label>
+            <div class="drink-grid">
+                <div class="drink-card" onclick="pilihMinum(this, 'Es Teh Kecil', 3000)">
+                    <span class="d-name">Es Teh Kecil</span>
+                    <span class="d-price">Rp 3.000</span>
+                    <i class="fas fa-plus-circle d-icon"></i>
+                </div>
+                <div class="drink-card" onclick="pilihMinum(this, 'Es Teh JUMBO', 5000)">
+                    <span class="d-name">Es Teh JUMBO</span>
+                    <span class="d-price">Rp 5.000</span>
+                    <i class="fas fa-plus-circle d-icon"></i>
+                </div>
+                 <div class="drink-card" onclick="pilihMinum(this, 'Es Jeruk Peras', 5000)">
+                    <span class="d-name">Es Jeruk Peras</span>
+                    <span class="d-price">Rp 5.000</span>
+                    <i class="fas fa-plus-circle d-icon"></i>
+                </div>
+                 <div class="drink-card" onclick="pilihMinum(this, 'Air Mineral', 3000)">
+                    <span class="d-name">Air Mineral</span>
+                    <span class="d-price">Rp 3.000</span>
+                    <i class="fas fa-plus-circle d-icon"></i>
+                </div>
+            </div>
+            <input type="hidden" id="selected_drink_name" value="-">
+            <input type="hidden" id="selected_drink_price" value="0">
         </div>
 
         <button class="btn-pesan" onclick="kirimKeWA()">
-            <i class="fab fa-whatsapp"></i> Kirim Pesanan
+            <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> Kirim Pesanan Sekarang
         </button>
 
-        <div class="credit">Created by Erynd | Powered by Logic</div>
+        
     </div>
+    <div class="credit" style="color:white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Created by Erynd</div>
 
+
+    <div class="modal-overlay" id="menuModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">Pilih Menunya</span>
+                <button class="btn-close-modal" onclick="tutupModalMenu()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="modal-food-container">
+                </div>
+        </div>
+    </div>
     <script>
-        // --- KONFIGURASI ---
+        // --- KONFIGURASI & DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
-        const SELLER_LAT = -7.7612653; 
-        const SELLER_LON = 110.4187610;
+        const SELLER_LAT = -7.7612653; const SELLER_LON = 110.4187610;
 
-        // DATA MENU DENGAN GAMBAR (Gunakan link gambar kamu sendiri nanti)
-        // Saya pakai gambar placeholder Unsplash yang relevan
+        // GUNAKAN FOTO ASLI PRODUKMU DI SINI AGAR MAKIN MENGGIURKAN!
+        // Pastikan fotonya rasio Landscape atau Persegi dan kualitas bagus.
         const menuData = {
             1: [ // PEDAS
-                { nama: "Basreng Stik", harga: 8000, img: "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=150&q=80" },
-                { nama: "Makaroni Bantet", harga: 5000, img: "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?auto=format&fit=crop&w=150&q=80" }
+                { nama: "Basreng Stik Pedas", harga: 8000, img: "https://images.unsplash.com/photo-1625876323763-e310217260b6?q=80&w=600&auto=format&fit=crop" },
+                { nama: "Makaroni Bantet Setan", harga: 5000, img: "https://images.unsplash.com/photo-1597414971772-0983a80999eb?q=80&w=600&auto=format&fit=crop" }
             ],
             2: [ // MANIS
-                { nama: "Piscok Lumer (3pcs)", harga: 5000, img: "https://images.unsplash.com/photo-1629115916087-7e8c114a24ed?auto=format&fit=crop&w=150&q=80" },
-                { nama: "Bola Cokelat (4pcs)", harga: 5000, img: "https://images.unsplash.com/photo-1548848221-0c2e497ed557?auto=format&fit=crop&w=150&q=80" }
+                { nama: "Piscok Lumer (3pcs)", harga: 5000, img: "https://images.unsplash.com/photo-1639336920438-b62b1987633c?q=80&w=600&auto=format&fit=crop" },
+                { nama: "Bola Cokelat Lumer (4pcs)", harga: 5000, img: "https://images.unsplash.com/photo-1621488368624-7321fb986303?q=80&w=600&auto=format&fit=crop" }
             ],
             3: [ // KRIUK
-                { nama: "KULPI Balado", harga: 5000, img: "https://images.unsplash.com/photo-1621535798993-94c34da67768?auto=format&fit=crop&w=150&q=80" },
-                { nama: "Keripik Pangsit", harga: 6000, img: "https://images.unsplash.com/photo-1605634629471-a472c3d90595?auto=format&fit=crop&w=150&q=80" }
+                { nama: "KULPI Balado", harga: 5000, img: "https://images.unsplash.com/photo-1566454825481-4e48f80aa4d7?q=80&w=600&auto=format&fit=crop" }, // Placeholder snack
+                { nama: "Keripik Pangsit Renyah", harga: 6000, img: "https://images.unsplash.com/photo-1623779913911-137100626215?q=80&w=600&auto=format&fit=crop" } // Placeholder snack
             ],
             4: [ // KENYANG
-                { nama: "Cireng Rujak (5pcs)", harga: 5000, img: "https://images.unsplash.com/photo-1589148002099-2708b73f8a00?auto=format&fit=crop&w=150&q=80" },
-                { nama: "Tahu Walik (4pcs)", harga: 6000, img: "https://images.unsplash.com/photo-1619860183050-2f9862534f59?auto=format&fit=crop&w=150&q=80" }
+                { nama: "Cireng Rujak Isi 5", harga: 5000, img: "https://images.unsplash.com/photo-1604137088958-08305487480e?q=80&w=600&auto=format&fit=crop" },
+                { nama: "Tahu Walik Krispi (4pcs)", harga: 6000, img: "https://images.unsplash.com/photo-1619566361602-067030a06e81?q=80&w=600&auto=format&fit=crop" }
             ]
         };
 
         const quotesData = {
-            1: "Pedas nendang, emosi hilang! 🔥",
-            2: "Manisnya bikin senyum lagi. 🍫",
-            3: "Teman setia saat gabut melanda. 🍿",
-            4: "Perut kenyang, hati senang! 🥰"
+            1: "🔥 Pedasnya nendang, emosi auto hilang!",
+            2: "🍫 Yang manis-manis untuk harimu yang kelabu.",
+            3: "🍿 Teman kriuk paling pas buat usir gabut.",
+            4: "🥰 Perut kenyang, hati auto senang!"
         };
 
+        // --- STATE VARIABLES ---
         let metodePengiriman = 'pickup';
         let hargaOngkir = 0;
         let userDistanceKM = 0;
+        let selectedFoodName = "";
+        let selectedFoodPrice = 0;
 
-        // --- LOGIKA UTAMA ---
-
+        // --- FUNGSI DELIVERY/PICKUP ---
         function pilihMetode(metode) {
             metodePengiriman = metode;
-            const btnPickup = document.getElementById("opt-pickup");
-            const btnDelivery = document.getElementById("opt-delivery");
-            const groupAlamat = document.getElementById("group-alamat");
+            document.getElementById("opt-pickup").classList.toggle('active', metode === 'pickup');
+            document.getElementById("opt-delivery").classList.toggle('active', metode === 'delivery');
+            document.getElementById("alamat").classList.toggle('hidden', metode === 'pickup');
+            
             const infoLokasi = document.getElementById("info-lokasi");
-
             if (metode === 'pickup') {
-                btnPickup.classList.add('active');
-                btnDelivery.classList.remove('active');
-                groupAlamat.classList.add('hidden');
-                infoLokasi.innerHTML = `📍 <b>Lokasi Ambil:</b> Jenengan, Maguwoharjo<br><iframe src="https://maps.google.com/maps?q=${SELLER_LAT},${SELLER_LON}&z=15&output=embed"></iframe>`;
+                infoLokasi.innerHTML = `<i class="fas fa-map-pin"></i> Ambil di: <b>Jenengan, Maguwoharjo</b>`;
                 hargaOngkir = 0;
             } else {
-                btnPickup.classList.remove('active');
-                btnDelivery.classList.add('active');
-                groupAlamat.classList.remove('hidden');
-                infoLokasi.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sedang mendeteksi lokasi kamu...`;
+                infoLokasi.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Mencari lokasimu...`;
                 ambilLokasiUser();
             }
         }
 
-        // --- GPS LOGIC (Ringkas) ---
         function ambilLokasiUser() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                document.getElementById("info-lokasi").innerText = "Browser tidak support GPS.";
-            }
+            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(showPosition, showError); } 
+            else { document.getElementById("info-lokasi").innerText = "GPS tidak didukung browser ini."; }
         }
-
         function showPosition(position) {
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
-            
-            // Rumus Haversine Sederhana
-            let R = 6371; 
-            let dLat = (SELLER_LAT - lat) * (Math.PI/180);
-            let dLon = (SELLER_LON - lon) * (Math.PI/180);
+            // Rumus Haversine sederhana untuk estimasi cepat
+            let lat = position.coords.latitude; let lon = position.coords.longitude;
+            let R = 6371; let dLat = (SELLER_LAT - lat) * (Math.PI/180); let dLon = (SELLER_LON - lon) * (Math.PI/180);
             let a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat * (Math.PI/180)) * Math.cos(SELLER_LAT * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
             let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            let d = R * c * 1.4; // Buffer jalan raya
+            userDistanceKM = (R * c * 1.4).toFixed(1); // Buffer 1.4x
             
-            userDistanceKM = d.toFixed(2);
-            
-            // Hitung Ongkir
-            if (userDistanceKM <= 4) hargaOngkir = 5000;
-            else if (userDistanceKM <= 9) hargaOngkir = 10000;
-            else if (userDistanceKM <= 15) hargaOngkir = 15000;
-            else hargaOngkir = 20000;
-
-            document.getElementById("info-lokasi").innerHTML = `📍 Jarak: <b>${userDistanceKM} km</b> | Ongkir: <b style="color:#EE6F57">Rp ${hargaOngkir.toLocaleString()}</b>`;
+            if (userDistanceKM <= 4) hargaOngkir = 5000; else if (userDistanceKM <= 9) hargaOngkir = 10000; else hargaOngkir = 15000;
+            document.getElementById("info-lokasi").innerHTML = `Jarak: <b>${userDistanceKM} km</b> | Ongkir: <b>Rp ${hargaOngkir.toLocaleString()}</b>`;
         }
+        function showError() { document.getElementById("info-lokasi").innerHTML = "❌ Gagal deteksi lokasi. Pastikan GPS aktif."; }
 
-        function showError() {
-            document.getElementById("info-lokasi").innerHTML = "❌ Gagal deteksi lokasi. Pastikan GPS aktif.";
-        }
-
-        // --- LOGIKA VISUAL MOOD & MENU ---
-
+        // --- FUNGSI MOOD & MODAL MENU ---
         function pilihMood(idMood, element) {
-            // 1. Reset visual mood
             document.querySelectorAll('.mood-card').forEach(el => el.classList.remove('active'));
-            // 2. Aktifkan mood yang diklik
             element.classList.add('active');
-            // 3. Simpan nilai
             document.getElementById("selected_mood").value = idMood;
             
-            // 4. Handle Zona Pedas
-            const zonaPedas = document.getElementById("zona-pedas");
-            if (idMood === 1) zonaPedas.classList.remove('hidden');
-            else zonaPedas.classList.add('hidden');
-
-            // 5. Render Menu Makanan
-            renderMenu(idMood);
+            // Tampilkan Trigger Area dan Zona Pedas jika perlu
+            document.getElementById("menu-trigger-area").classList.remove("hidden");
+            document.getElementById("zona-pedas").classList.toggle("hidden", idMood !== 1);
+            
+            // Reset pilihan makanan sebelumnya saat ganti mood
+            resetPilihanMakanan();
         }
 
-        function renderMenu(idMood) {
-            const container = document.getElementById("menu-container");
-            const groupMenu = document.getElementById("group-menu");
-            container.innerHTML = ""; // Bersihkan menu lama
-            
-            if (menuData[idMood]) {
-                groupMenu.classList.remove('hidden');
-                menuData[idMood].forEach(item => {
-                    // Buat elemen kartu makanan
-                    let card = document.createElement('div');
-                    card.className = 'menu-card';
-                    card.onclick = function() { pilihMakanan(this, item.nama, item.harga) };
-                    
-                    card.innerHTML = `
-                        <img src="${item.img}" alt="${item.nama}">
-                        <div class="menu-info">
-                            <div class="menu-title">${item.nama}</div>
-                            <div class="menu-price">Rp ${item.harga.toLocaleString()}</div>
-                        </div>
-                        <i class="fas fa-check-circle" style="color:#ddd; font-size:1.2rem;"></i>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        }
-
-        function pilihMakanan(element, nama, harga) {
-            // Reset visual makanan
-            document.querySelectorAll('.menu-card').forEach(el => {
-                el.classList.remove('active');
-                el.querySelector('.fa-check-circle').style.color = '#ddd';
-            });
-            
-            // Aktifkan yg dipilih
-            element.classList.add('active');
-            element.querySelector('.fa-check-circle').style.color = '#32E0C4'; // Warna hijau tosca
-            
-            // Simpan Data
-            document.getElementById("selected_food_name").value = nama;
-            document.getElementById("selected_food_price").value = harga;
-        }
-
-        function cekMaag() {
-            let punya = document.getElementById("punya_maag").checked;
-            let konf = document.getElementById("konfirmasi-maag");
-            if(punya) konf.classList.remove("hidden");
-            else konf.classList.add("hidden");
-        }
-
-        function kirimKeWA() {
-            let nama = document.getElementById("nama").value;
-            let mood = parseInt(document.getElementById("selected_mood").value);
-            let foodName = document.getElementById("selected_food_name").value;
-            let foodPrice = parseInt(document.getElementById("selected_food_price").value);
-            
-            // Validasi
-            if (!nama) { alert("Isi nama dulu ya kak!"); return; }
-            if (mood === 0) { alert("Pilih Mood kamu dulu!"); return; }
-            if (!foodName) { alert("Pilih salah satu menu makanannya ya!"); return; }
-
-            // Logic Pedas
-            let infoPedas = "";
-            if (mood === 1) {
-                let maag = document.getElementById("punya_maag").checked;
-                let yakin = document.getElementById("yakin_lanjut").checked;
-                if (maag && !yakin) { alert("Duh jangan yang pedas ya kalau punya Maag 😢 Ganti mood yuk!"); return; }
-                infoPedas = " (Level " + document.getElementById("level_pedas").value + ")";
-            }
-
-            // Minuman
-            let selectMinum = document.getElementById("minum");
-            let minumPrice = parseInt(selectMinum.value);
-            let minumName = selectMinum.options[selectMinum.selectedIndex].text;
-            if (minumPrice === 0) minumName = "-";
-
-            // Total & Pesan
-            let total = foodPrice + minumPrice + hargaOngkir;
-            let alamat = document.getElementById("alamat").value || "-";
-            
-            let pesan = `Halo kak Erynd! Mau pesan *MOODMUNCH* nih\n\n` +
-                        `👤 *${nama}*\n` +
-                        `----------------------\n` +
-                        `🎭 Mood: ${mood === 1 ? 'Marah 😡' : mood === 2 ? 'Sedih 😢' : mood === 3 ? 'Bosan 😐' : 'Lapar 😋'}\n` +
-                        `🍽️ *${foodName}* ${infoPedas}\n` +
-                        `🥤 ${minumName}\n` +
-                        `----------------------\n` +
-                        `🚚 ${metodePengiriman === 'pickup' ? 'Ambil Sendiri' : 'Delivery (' + userDistanceKM + ' km)'}\n` +
-                        `🏠 ${alamat}\n` +
-                        `💰 *Total: Rp ${total.toLocaleString()}*\n\n` +
-                        `_Catatan: ${quotesData[mood]}_`;
-
-            window.open(`https://wa.me/${NOMOR_WA_PENJUAL}?text=${encodeURIComponent(pesan)}`, '_blank');
-        }
-        
-        // Default set ke pickup saat load
-        pilihMetode('pickup');
-    </script>
-</body>
-</html>
+        function bukaModalMenu() {
+            const moodId = document.getElementById("selected_mood").value;
+            if(moodId == 0) return;
