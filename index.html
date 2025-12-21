@@ -344,3 +344,115 @@
         function bukaModalMenu() {
             const moodId = document.getElementById("selected_mood").value;
             if(moodId == 0) return;
+            
+            // Render kartu makanan BESAR ke dalam modal
+            const container = document.getElementById("modal-food-container");
+            container.innerHTML = "";
+            menuData[moodId].forEach(item => {
+                let card = document.createElement('div');
+                card.className = 'big-food-card';
+                card.onclick = function() { pilihMakananDariModal(this, item.nama, item.harga) };
+                card.innerHTML = `
+                    <img src="${item.img}" class="big-food-img" alt="${item.nama}">
+                    <div class="big-food-details">
+                        <span class="food-name-large">${item.nama}</span>
+                        <span class="food-price-large">Rp ${item.harga.toLocaleString()}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Tampilkan Modal dengan animasi
+            document.getElementById("menuModal").classList.add("show");
+        }
+
+        function tutupModalMenu() {
+            document.getElementById("menuModal").classList.remove("show");
+        }
+
+        function pilihMakananDariModal(element, nama, harga) {
+            // Highlight visual di modal
+            document.querySelectorAll('.big-food-card').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Simpan data
+            selectedFoodName = nama;
+            selectedFoodPrice = harga;
+
+            // Update preview di halaman utama dan tutup modal setelah jeda singkat
+            setTimeout(() => {
+                document.getElementById("food-preview").classList.remove("hidden");
+                document.getElementById("preview-food-name").innerText = nama;
+                document.getElementById("preview-food-price").innerText = "Rp " + harga.toLocaleString();
+                tutupModalMenu();
+            }, 300);
+        }
+
+        function resetPilihanMakanan() {
+            selectedFoodName = ""; selectedFoodPrice = 0;
+            document.getElementById("food-preview").classList.add("hidden");
+        }
+
+        // --- FUNGSI MINUMAN MODERN ---
+        function pilihMinum(element, nama, harga) {
+            // Cek apakah kartu ini sudah aktif
+            let isActive = element.classList.contains('active');
+
+            // Reset semua kartu minuman dulu
+            document.querySelectorAll('.drink-card').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.d-icon').className = 'fas fa-plus-circle d-icon';
+            });
+
+            if (!isActive) {
+                // Jika belum aktif, aktifkan kartu yang diklik
+                element.classList.add('active');
+                element.querySelector('.d-icon').className = 'fas fa-check-circle d-icon';
+                document.getElementById("selected_drink_name").value = nama;
+                document.getElementById("selected_drink_price").value = harga;
+            } else {
+                // Jika sudah aktif, klik lagi berarti membatalkan pilihan
+                document.getElementById("selected_drink_name").value = "-";
+                document.getElementById("selected_drink_price").value = 0;
+            }
+        }
+
+        // --- KIRIM WHATSAPP ---
+        function kirimKeWA() {
+            let nama = document.getElementById("nama").value;
+            let mood = parseInt(document.getElementById("selected_mood").value);
+            
+            if (!nama) { alert("Isi nama dulu ya kak!"); return; }
+            if (mood === 0) { alert("Pilih Mood kamu dulu!"); return; }
+            if (!selectedFoodName) { alert("Belum pilih makanannya nih, klik tombol LIHAT MENU ya!"); return; }
+
+            let infoPedas = "";
+            if (mood === 1) {
+                if (document.getElementById("punya_maag").checked) { alert("Kak, karena ada riwayat Maag, sebaiknya jangan pesan yang pedas ya. Ganti mood lain yuk demi kesehatan lambung! 🙏"); return; }
+                infoPedas = " (Level " + document.getElementById("level_pedas").value + ")";
+            }
+
+            let minumName = document.getElementById("selected_drink_name").value;
+            let minumPrice = parseInt(document.getElementById("selected_drink_price").value);
+            let total = selectedFoodPrice + minumPrice + hargaOngkir;
+            let alamatText = metodePengiriman === 'delivery' ? (document.getElementById("alamat").value || "Belum diisi") : "-";
+
+            let pesan = `Halo kak Erynd! Mau pesan *MOODMUNCH* v3 nih\n\n` +
+                        `👤 *${nama}*\n` +
+                        `----------------------\n` +
+                        `🎭 Mood: ${mood==1?'Marah 😡':mood==2?'Sedih 😢':mood==3?'Bosan 😐':'Lapar 😋'}\n` +
+                        `🍽️ *${selectedFoodName}* ${infoPedas}\n` +
+                        `🥤 Minum: ${minumName}\n` +
+                        `----------------------\n` +
+                        `🚚 ${metodePengiriman=='pickup'?'Ambil Sendiri':'Delivery ('+userDistanceKM+'km)'}\n` +
+                        `🏠 ${alamatText}\n` +
+                        `💰 *Total: Rp ${total.toLocaleString()}*\n\n` +
+                        `_Catatan: "${quotesData[mood]}"_`;
+
+            window.open(`https://wa.me/${NOMOR_WA_PENJUAL}?text=${encodeURIComponent(pesan)}`, '_blank');
+        }
+        
+        pilihMetode('pickup'); // Default run
+    </script>
+</body>
+</html>
