@@ -256,7 +256,7 @@
     <script>
         // --- KONFIGURASI & DATA ---
         const NOMOR_WA_PENJUAL = "6287846644813"; 
-        const SELLER_LAT = -7.7612653; const SELLER_LON = 110.4187610;
+        const SELLER_LAT =  -7.756372; const SELLER_LON = 110.406832;
 
         // GUNAKAN FOTO ASLI PRODUKMU DI SINI AGAR MAKIN MENGGIURKAN!
         // Pastikan fotonya rasio Landscape atau Persegi dan kualitas bagus.
@@ -295,20 +295,36 @@
 
         // --- FUNGSI DELIVERY/PICKUP ---
         function pilihMetode(metode) {
-            metodePengiriman = metode;
-            document.getElementById("opt-pickup").classList.toggle('active', metode === 'pickup');
-            document.getElementById("opt-delivery").classList.toggle('active', metode === 'delivery');
-            document.getElementById("alamat").classList.toggle('hidden', metode === 'pickup');
-            
-            const infoLokasi = document.getElementById("info-lokasi");
-            if (metode === 'pickup') {
-                infoLokasi.innerHTML = `<i class="fas fa-map-pin"></i> Ambil di: <b>Jenengan, Maguwoharjo</b>`;
-                hargaOngkir = 0;
-            } else {
-                infoLokasi.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Mencari lokasimu...`;
-                ambilLokasiUser();
-            }
-        }
+    metodePengiriman = metode;
+    
+    // Toggle class active untuk visual tombol
+    document.getElementById("opt-pickup").classList.toggle('active', metode === 'pickup');
+    document.getElementById("opt-delivery").classList.toggle('active', metode === 'delivery');
+    
+    // Sembunyikan/Tampilkan input alamat
+    document.getElementById("alamat").classList.toggle('hidden', metode === 'pickup');
+    
+    const infoLokasi = document.getElementById("info-lokasi");
+
+    if (metode === 'pickup') {
+        // --- BAGIAN INI YANG BARU (ADA LINK MAPS) ---
+        hargaOngkir = 0;
+        infoLokasi.innerHTML = `
+            <div style="text-align:center;">
+                <i class="fas fa-store" style="color:#EE6F57;"></i> Lokasi: <b>Jenengan, Maguwoharjo</b>
+                <br>
+                <a href="https://www.google.com/maps/search/?api=1&query=${SELLER_LAT},${SELLER_LON}" target="_blank" style="display:inline-block; margin-top:8px; color:#32E0C4; text-decoration:none; font-weight:600; border:1px dashed #32E0C4; padding:5px 15px; border-radius:10px; font-size:0.85rem;">
+                   <i class="fas fa-map-marked-alt"></i> Klik untuk Buka Maps
+                </a>
+            </div>
+        `;
+    } else {
+        // Jika Delivery
+        infoLokasi.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Mencari lokasimu...`;
+        ambilLokasiUser();
+    }
+}
+
 
         function ambilLokasiUser() {
             if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(showPosition, showError); } 
@@ -456,6 +472,7 @@
     </script>
 </body>
 </html>
+
 
 
 
